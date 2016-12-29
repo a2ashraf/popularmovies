@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#666666"
+    tools:context="com.example.ahsan.popularmovies.activities.DetailsActivity"
+
+    >
+
+    <ImageView
+android:scaleType="fitXY"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/background_image"
+
+        />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="A"
+        android:id="@+id/title_of_movie"
+        android:padding="10dp"
+        android:layout_gravity="center"
+        android:textSize="20dp"
+        android:textAppearance="@style/Base.ThemeOverlay.AppCompat.Light"
+
+        />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="A"
+        android:id="@+id/overview"
+        android:padding="5dp"
+        android:textSize="12dp"
+         android:textColor="#FFFFFF"
+        />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/user_rating"
+        android:id="@+id/rating"
+        android:layout_gravity="right"
+        android:padding="5dp"
+        android:textSize="10dp"
+        android:textColor="#EFEFEF"
+
+        />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/release_date"
+        android:id="@+id/release_date"
+        android:layout_gravity="right"
+        android:padding="5dp"
+        android:textSize="10dp"
+        android:textColor="#EFEFEF"
+        />
+
+</LinearLayout>

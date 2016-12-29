@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">PopularMovies</string>
+    <string name="title_activity_details">DetailsActivity</string>
+    <string name="top_rated_movie_url">https://api.themoviedb.org/3/movie/top_rated?</string>
+    <string name="popular_movie_url">https://api.themoviedb.org/3/movie/popular?</string>
+    <string name="image_size">/w185</string>
+    <string name="configuration_url">https://api.themoviedb.org/3/configuration?</string>
+    <string name="user_rating">Rating</string>
+    <string name="release_date">Released on: </string>
+</resources>
