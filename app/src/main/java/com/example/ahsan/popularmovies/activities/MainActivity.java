@@ -4,12 +4,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.Toast;
@@ -26,6 +25,8 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+import static com.example.ahsan.popularmovies.R.menu.sort;
+
 public class MainActivity extends AppCompatActivity {
 
 
@@ -41,6 +42,8 @@ public class MainActivity extends AppCompatActivity {
     private ImageAdapter myAdapter;
     private GridView gridview;
     private boolean valid = false;
+    Bundle stateSaver;
+    String sort_by;
     public enum MovieResponse{
         TITLE("original_title"),
         THUMBNAIL("poster_path"),
@@ -63,9 +66,16 @@ public class MainActivity extends AppCompatActivity {
     }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        sort_by = SORTBY_TOP_RATED;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        stateSaver = savedInstanceState;
 
+           if ((savedInstanceState != null)
+                    && (savedInstanceState.getSerializable("sort_by") != null)) {
+                  sort_by = (String) savedInstanceState
+                            .getSerializable("sort_by");
+               }
 
         FetchConfiguration configuration = new FetchConfiguration(this);
 
@@ -78,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
         FetchData movieDataService = new FetchData(this);
 
         if( isOnline()){
-            movieDataService.execute("0",SORTBY_TOP_RATED);
+            movieDataService.execute("0",sort_by);
         }else
             Toast.makeText(this, "Please verify your internet connection, and try again", Toast.LENGTH_SHORT).show();
 
@@ -106,6 +116,19 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    protected void onSaveInstanceState(Bundle state) {
+        super.onSaveInstanceState(state);
+        state.putSerializable("sort_by", sort_by);
+    }
+
+
+    @Override
+    protected void onPause() {
+     if(stateSaver!=null)
+        stateSaver.putSerializable("sort_by",sort_by );
+
+        super.onPause();
+    }
 
     public String getImageBaseURL() {
         return imageBaseURL;
@@ -141,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
-        getMenuInflater().inflate(R.menu.sort, menu);
+        getMenuInflater().inflate(sort, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -154,12 +177,14 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.action_top_rated) {
             FetchData movieDataService = new FetchData(this);
             movieDataService.execute("0",SORTBY_TOP_RATED);
+            sort_by = SORTBY_TOP_RATED;
             return true;
         }
 
         if (id == R.id.action_popularity) {
             FetchData movieDataService = new FetchData(this);
             movieDataService.execute("0",SORTBY_POPULAR);
+            sort_by = SORTBY_POPULAR;
             return true;
         }
         return super.onOptionsItemSelected(item);
