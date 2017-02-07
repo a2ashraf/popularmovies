@@ -4,7 +4,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#666666"
+    android:background="@color/colorGray"
     tools:context="com.example.ahsan.popularmovies.activities.DetailsActivity"
 
     >
@@ -19,43 +19,43 @@ android:scaleType="fitXY"
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="A"
+        tools:text="A"
         android:id="@+id/title_of_movie"
-        android:padding="10dp"
+        android:padding="@dimen/size_10"
         android:layout_gravity="center"
-        android:textSize="20dp"
+        android:textSize="@dimen/size_20"
         android:textAppearance="@style/Base.ThemeOverlay.AppCompat.Light"
 
         />
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="A"
+        tools:text="A"
         android:id="@+id/overview"
-        android:padding="5dp"
-        android:textSize="12dp"
-         android:textColor="#FFFFFF"
+        android:padding="@dimen/size_5"
+        android:textSize="@dimen/size_12"
+         android:textColor="@color/colorWhite"
         />
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/user_rating"
+        tools:text="@string/user_rating"
         android:id="@+id/rating"
         android:layout_gravity="right"
-        android:padding="5dp"
-        android:textSize="10dp"
-        android:textColor="#EFEFEF"
+        android:padding="@dimen/size_5"
+        android:textSize="@dimen/size_10"
+        android:textColor="@color/colorOffWhite"
 
         />
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/release_date"
+        tools:text="@string/release_date"
         android:id="@+id/release_date"
         android:layout_gravity="right"
-        android:padding="5dp"
-        android:textSize="10dp"
-        android:textColor="#EFEFEF"
+        android:padding="@dimen/size_5"
+        android:textSize="@dimen/size_10"
+        android:textColor="@color/colorOffWhite"
         />
 
 </LinearLayout>
