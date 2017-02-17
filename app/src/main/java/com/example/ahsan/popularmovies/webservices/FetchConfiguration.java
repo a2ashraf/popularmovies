@@ -1,15 +1,14 @@
 package com.example.ahsan.popularmovies.webservices;
 
-import android.app.Activity;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 
 import com.example.ahsan.popularmovies.BuildConfig;
 import com.example.ahsan.popularmovies.R;
-import com.example.ahsan.popularmovies.activities.MainActivity;
+import com.example.ahsan.popularmovies.fragments.MovieListing;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -35,9 +34,9 @@ public class FetchConfiguration extends AsyncTask<String, Void, String > {
    private final  String IMAGES= "images";
 
 
-    private Activity actvity;
-   public FetchConfiguration(Activity callingClass){
-         actvity = callingClass;
+    private Fragment fragment;
+   public FetchConfiguration(Fragment callingFragment){
+       fragment = callingFragment;
     }
 
 
@@ -64,7 +63,7 @@ public class FetchConfiguration extends AsyncTask<String, Void, String > {
               String BASE_URL="";
             Uri builtUri=null;
 
-            BASE_URL = actvity.getString(R.string.configuration_url);
+            BASE_URL = fragment.getString(R.string.configuration_url);
             builtUri = Uri.parse(BASE_URL).buildUpon()
                         .appendQueryParameter(API_KEY, BuildConfig.API_KEY).build();
 
@@ -135,7 +134,7 @@ public class FetchConfiguration extends AsyncTask<String, Void, String > {
 
 
     private String parseConfigJson(String json){
-            String IMAGE_SIZE = actvity.getString(R.string.image_size);
+            String IMAGE_SIZE = fragment.getString(R.string.image_size);
         ;
            try {
                JSONObject rootResponse = new JSONObject(json);
@@ -159,7 +158,7 @@ public class FetchConfiguration extends AsyncTask<String, Void, String > {
     @Override
     protected void onPostExecute(String  result) {
         if (result != null) {
-            ((MainActivity)actvity).setImageBaseURL(result);
+            ((MovieListing)fragment).setImageBaseURL(result);
         }
 
     }

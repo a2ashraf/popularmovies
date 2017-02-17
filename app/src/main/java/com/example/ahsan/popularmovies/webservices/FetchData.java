@@ -1,16 +1,12 @@
 package com.example.ahsan.popularmovies.webservices;
 
-import android.app.Activity;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.preference.PreferenceManager;
-import android.text.format.Time;
 import android.util.Log;
 
 import com.example.ahsan.popularmovies.BuildConfig;
 import com.example.ahsan.popularmovies.R;
-import com.example.ahsan.popularmovies.activities.MainActivity;
+import com.example.ahsan.popularmovies.fragments.MovieListing;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -21,41 +17,37 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.text.SimpleDateFormat;
 
 /**
  * Created by ahsan on 2016-12-25.
  */
 
-public class FetchData extends AsyncTask<String, Void, JSONArray > {
+public class FetchData extends AsyncTask<String, Void, JSONArray> {
 
     private static final String RESULTS_ARRAY = "results";
-    private MainActivity main;
     private final String LOG_TAG = FetchData.class.getSimpleName();
     private final String LANGUAGE_LOCALE = "en_US";
-    private final String  API_KEY= "api_key";
-    private final String  LANGUAGE = "language";
-    private final  String  PAGE_NO= "page";
+    private final String API_KEY = "api_key";
+    private final String LANGUAGE = "language";
+    private final String PAGE_NO = "page";
 
-    private Activity actvity;
-    public  FetchData( Activity callingClass){
-        actvity = callingClass;
-        main =  ((MainActivity) actvity);
+    private MovieListing fragment;
 
+    public FetchData(MovieListing callingFragment) {
+        fragment = callingFragment;
     }
 
 
     @Override
-    protected JSONArray  doInBackground(String... params) {
+    protected JSONArray doInBackground(String... params) {
 
         // If there's no zip code, there's nothing to look up.  Verify size of params.
         if (params.length == 0) {
             return null;
         }
 
-        String pagination= params[0];
+        String pagination = params[0];
         String sortOrder = params[1];
 
         // These two need to be declared outside the try/catch
@@ -64,34 +56,30 @@ public class FetchData extends AsyncTask<String, Void, JSONArray > {
         BufferedReader reader = null;
 
         // Will contain the raw JSON response as a string.
-        String responseJSON= null;
-
+        String responseJSON = null;
 
 
         try {
             // Construct the URL for the OpenWeatherMap query
             // Possible parameters are avaiable at OWM's forecast API page, at
             // http://openweathermap.org/API#forecast
-            String BASE_URL="";
-            Uri builtUri=null;
+            String BASE_URL = "";
+            Uri builtUri = null;
 
 
-            if(sortOrder.equals(MainActivity.SORTBY_TOP_RATED)){
+            if (sortOrder.equals(fragment.SORTBY_TOP_RATED)) {
 
-                BASE_URL = actvity.getString(R.string.top_rated_movie_url);
-            }else if(sortOrder.equals(MainActivity.SORTBY_POPULAR)) {
-                BASE_URL = actvity.getString(R.string.popular_movie_url);
+                BASE_URL = fragment.getString(R.string.top_rated_movie_url);
+            } else if (sortOrder.equals(fragment.SORTBY_POPULAR)) {
+                BASE_URL = fragment.getString(R.string.popular_movie_url);
             }
 
 
-
-
-
-            if(pagination.equals("")|| pagination.equals("0"))
+            if (pagination.equals("") || pagination.equals("0"))
                 pagination = "1";
             builtUri = Uri.parse(BASE_URL).buildUpon()
                     .appendQueryParameter(LANGUAGE, LANGUAGE_LOCALE)
-                    .appendQueryParameter(PAGE_NO,pagination)
+                    .appendQueryParameter(PAGE_NO, pagination)
                     .appendQueryParameter(API_KEY, BuildConfig.API_KEY).build();
 
 
@@ -144,16 +132,15 @@ public class FetchData extends AsyncTask<String, Void, JSONArray > {
         }
 
 
-        Log.v(LOG_TAG ,responseJSON.toString());
+        Log.v(LOG_TAG, responseJSON.toString());
 
 
-
-        return  parseResponse(responseJSON);
+        return parseResponse(responseJSON);
     }
 
 
-    private JSONArray parseResponse(String json){
-        String IMAGE_SIZE =actvity.getString(R.string.image_size);
+    private JSONArray parseResponse(String json) {
+        String IMAGE_SIZE = fragment.getActivity().getString(R.string.image_size);
         try {
             JSONObject rootResponse = new JSONObject(json);
             JSONArray resultsArray = rootResponse.getJSONArray(RESULTS_ARRAY);
@@ -166,17 +153,16 @@ public class FetchData extends AsyncTask<String, Void, JSONArray > {
         }
 
 
-        return  null;
+        return null;
     }
 
 
-
-
     @Override
-    protected void onPostExecute(JSONArray  result) {
+    protected void onPostExecute(JSONArray result) {
         if (result != null) {
             try {
-                ((MainActivity) actvity).setData(result);
+
+                fragment.setData(result);
             } catch (JSONException e) {
                 e.printStackTrace();
             }

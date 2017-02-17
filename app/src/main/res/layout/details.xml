@@ -1,61 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/colorGray"
-    tools:context="com.example.ahsan.popularmovies.activities.DetailsActivity"
-
-    >
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:background="@color/colorWhite"
+              android:orientation="vertical"
+              tools:context="com.example.ahsan.popularmovies.activities.DetailsActivity"
+              android:padding="@dimen/size_5"
+>
 
     <ImageView
-android:scaleType="fitXY"
+        android:id="@+id/background_image"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/background_image"
+        android:scaleType="fitXY"
 
-        />
+    />
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        tools:text="A"
         android:id="@+id/title_of_movie"
-        android:padding="@dimen/size_10"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:textSize="@dimen/size_20"
+        android:padding="@dimen/size_10"
         android:textAppearance="@style/Base.ThemeOverlay.AppCompat.Light"
+        android:textSize="@dimen/size_20"
+        tools:text="@string/testcontent"
 
-        />
+    />
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        tools:text="A"
         android:id="@+id/overview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:padding="@dimen/size_5"
+        android:textColor="@color/colorBlack"
         android:textSize="@dimen/size_12"
-         android:textColor="@color/colorWhite"
-        />
+        tools:text="A"
+    />
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        tools:text="@string/user_rating"
         android:id="@+id/rating"
-        android:layout_gravity="right"
-        android:padding="@dimen/size_5"
-        android:textSize="@dimen/size_10"
-        android:textColor="@color/colorOffWhite"
-
-        />
-    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:text="@string/release_date"
-        android:id="@+id/release_date"
         android:layout_gravity="right"
         android:padding="@dimen/size_5"
+        android:textColor="@color/colorBlack"
         android:textSize="@dimen/size_10"
-        android:textColor="@color/colorOffWhite"
-        />
+        tools:text="@string/user_rating"
+
+    />
+    <TextView
+        android:id="@+id/release_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        android:padding="@dimen/size_5"
+        android:textColor="@color/colorBlack"
+        android:textSize="@dimen/size_10"
+        tools:text="@string/release_date"
+    />
 
 </LinearLayout>
