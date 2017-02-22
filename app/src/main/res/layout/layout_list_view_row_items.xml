@@ -10,9 +10,9 @@
         android:id="@+id/movie_imageview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:src="@color/colorBlack"
-         android:layout_margin="2dp"
+        android:layout_margin="2dp"
         android:adjustViewBounds="true"
+        android:src="@color/colorBlack"
     />
 
 </RelativeLayout>

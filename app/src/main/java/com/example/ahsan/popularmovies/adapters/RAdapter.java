@@ -15,7 +15,6 @@ import com.example.ahsan.popularmovies.fragments.MovieListing;
 import com.example.ahsan.popularmovies.model.Movie;
 import com.squareup.picasso.Picasso;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 /**
@@ -27,24 +26,13 @@ public class RAdapter extends RecyclerView.Adapter<RAdapter.ViewHolder> {
     private final Context ctx;
     ArrayList<Movie> movies;
     Fragment callingFragment;
-    int width = 0;
-    int height = 0;
+
 
     public RAdapter(Fragment fragment, ArrayList<Movie> items) {
         callingFragment = fragment;
         ctx = fragment.getActivity();
         movies = items;
 
-    }
-
-    public static int getId(String resourceName, Class<?> c) {
-        try {
-            Field idField = c.getDeclaredField(resourceName);
-            return idField.getInt(idField);
-        } catch (Exception e) {
-            throw new RuntimeException("No resource ID found for: "
-                    + resourceName + " / " + c, e);
-        }
     }
 
     @Override
@@ -78,7 +66,6 @@ public class RAdapter extends RecyclerView.Adapter<RAdapter.ViewHolder> {
                         (ImageView) itemView.findViewById(R.id.movie_imageview);
                 background.setOnClickListener(this);
             }
-
         }
 
         @Override
@@ -90,7 +77,6 @@ public class RAdapter extends RecyclerView.Adapter<RAdapter.ViewHolder> {
             b.putString(MovieResponse.RATING.name(), aMovie.getUserRating() + "");
             b.putString(MovieResponse.RELEASE_DATE.name(), aMovie.getReleaseDate());
             b.putString(MovieResponse.THUMBNAIL.name(), ((MovieListing) callingFragment).getImageBaseURL() + aMovie.getImageBackground());
-
             ((MovieListing) callingFragment).onButtonPressed(b);
 
 

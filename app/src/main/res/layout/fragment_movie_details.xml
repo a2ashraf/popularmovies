@@ -1,18 +1,68 @@
-<FrameLayout android:id="@+id/alisting"
-             xmlns:android="http://schemas.android.com/apk/res/android"
-             xmlns:tools="http://schemas.android.com/tools"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent"
-             tools:context="com.example.ahsan.popularmovies.fragments.MovieDetails"
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:background="@color/colorWhite"
+              android:orientation="vertical"
+              android:padding="@dimen/size_5"
+              android:weightSum="5"
+              tools:context="com.example.ahsan.popularmovies.activities.DetailsActivity"
+
 >
 
-    <!-- TODO: Update blank fragment layout -->
-    <FrameLayout android:id="@+id/details"
+    <ImageView
+        android:id="@+id/background_image"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="4"
+        android:scaleType="fitXY"
 
+    />
+    <TextView
+        android:id="@+id/title_of_movie"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_weight=".7"
+        android:padding="@dimen/size_10"
+        android:textAppearance="@style/Base.ThemeOverlay.AppCompat.Light"
+        android:textSize="@dimen/size_20"
+        tools:text="@string/testcontent"
 
-                 android:layout_width="match_parent"
-                 android:layout_height="match_parent"
-                 android:background="@color/colorBlack"/>
+    />
+    <TextView
+        android:id="@+id/overview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight=".1"
+        android:padding="@dimen/size_5"
+        android:textColor="@color/colorBlack"
+        android:textSize="@dimen/size_12"
+        tools:text="A"
+    />
+    <TextView
+        android:id="@+id/rating"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        android:layout_weight=".1"
+        android:padding="@dimen/size_5"
+        android:textColor="@color/colorBlack"
+        android:textSize="@dimen/size_10"
+        tools:text="@string/user_rating"
 
+    />
+    <TextView
+        android:id="@+id/release_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        android:layout_weight=".1"
+        android:padding="@dimen/size_5"
+        android:textColor="@color/colorBlack"
+        android:textSize="@dimen/size_10"
+        tools:text="@string/release_date"
+    />
 
-</FrameLayout>
+</LinearLayout>

@@ -61,9 +61,7 @@ public class FetchData extends AsyncTask<String, Void, JSONArray> {
 
 
         try {
-            // Construct the URL for the OpenWeatherMap query
-            // Possible parameters are avaiable at OWM's forecast API page, at
-            // http://openweathermap.org/API#forecast
+
             String BASE_URL = "";
             Uri builtUri = null;
 

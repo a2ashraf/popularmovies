@@ -5,6 +5,12 @@ package com.example.ahsan.popularmovies.model;
  */
 
 public class Movie {
+    private String imageBackground;
+    private String title;
+    private String overview; //synoposis
+    private float userRating; //vote_count
+    private String releaseDate;
+
     public String getImageBackground() {
         return imageBackground;
     }
@@ -44,11 +50,5 @@ public class Movie {
     public void setUserRating(float userRating) {
         this.userRating = userRating;
     }
-
-    private String imageBackground;
-    private String title;
-    private String overview; //synoposis
-    private float userRating; //vote_count
-    private String releaseDate;
 
 }

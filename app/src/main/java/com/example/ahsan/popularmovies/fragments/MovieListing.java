@@ -71,120 +71,12 @@ public class MovieListing extends Fragment {
     public static MovieListing newInstance(Bundle bundle) {
         d(" ");
         MovieListing fragment = new MovieListing();
-        Bundle args = new Bundle();
-        if (bundle != null) {
-            args.putString(ARG_PARAM1, "details");
-            args.putAll(bundle);
-
-        } else {
-
-            args.putString(ARG_PARAM1, "listing");
-
-
-        }
-
-        fragment.setArguments(args);
-
         return fragment;
-    }
-
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        Logger.t(5).d("Should only be once right? MENU");
-        menu.clear();
-        inflater.inflate(R.menu.sort, menu);
-
-        //   super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-         d("Only once, on inital");
-        int id = item.getItemId();
-        FetchData movieDataService = new FetchData(this);
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_top_rated) {
-
-            movieDataService.execute(SORTBY_TOP_RATED);
-            sort_by = SORTBY_TOP_RATED;
-            return true;
-        }
-
-        if (id == R.id.action_popularity) {
-            movieDataService.execute(SORTBY_POPULAR);
-            sort_by = SORTBY_POPULAR;
-            return true;
-        }
-        return false;
-    }
-
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        d(" ");
-        super.onCreate(savedInstanceState);
-//        if (getArguments() != null) {
-//            mParam1 = getArguments().getString(ARG_PARAM1);
-//         }
-
-
-        stateSaver = savedInstanceState;
-
-        if (stateSaver != null) {
-
-         if (stateSaver.getSerializable("sort_by") != null){
-                sort_by = (String) stateSaver.getSerializable("sort_by");
-                d("sort_by obtained from serialized state ");
-            }else{
-             sort_by = SORTBY_TOP_RATED;
-             d("EVER COME HERE? ");
-         }
-
-        }else{
-            sort_by = SORTBY_TOP_RATED;
-            d("stateSaver was null");
-        }
-
-
-    }
-
-
-    public void makeRequest() {
-
-
-        FetchConfiguration configuration = new FetchConfiguration(this);
-
-        if (imageBaseURL.equals("") && isOnline()) {
-            configuration.execute();
-        }
-
-        FetchData movieDataService = new FetchData(this);
-
-
-        if (isOnline()) {
-            d("Making service request");
-            movieDataService.execute(sort_by);
-        } else
-            Toast.makeText(getActivity(), "Please verify your internet connection, and try again", Toast.LENGTH_SHORT).show();
-
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-
-        d(" ");
-         setHasOptionsMenu(true);
-        returnView = inflater.inflate(R.layout.fragment_movie_listing, container, false);
-        return returnView;
     }
 
     public void setData(JSONArray result) throws JSONException {
         d(" ");
         arrayOfMovies = result;
-
         movies = new ArrayList<>();
         movies.clear();
         for (int i = 0; i < arrayOfMovies.length(); i++) {
@@ -205,11 +97,8 @@ public class MovieListing extends Fragment {
         myAdapter = new RAdapter(this, movies);
         recyclerView.setAdapter(myAdapter);
         myAdapter.notifyDataSetChanged();
-
     }
 
-
-    // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Bundle bundle) {
         d("Pressing the button");
         if (mListener != null) {
@@ -217,18 +106,8 @@ public class MovieListing extends Fragment {
         }
     }
 
-
-    public boolean isOnline() {
-//        d("Checking if we are online");
-        ConnectivityManager cm =
-                (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo netInfo = cm.getActiveNetworkInfo();
-        return netInfo != null && netInfo.isConnectedOrConnecting();
-    }
-
     @Override
     public void onAttach(Context context) {
-//        d("Actvitiy is attached, only once right?");
         super.onAttach(context);
         if (context instanceof OnFragmentInteractionListener) {
             mListener = (OnFragmentInteractionListener) context;
@@ -238,6 +117,71 @@ public class MovieListing extends Fragment {
         }
     }
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        d(" ");
+        super.onCreate(savedInstanceState);
+        stateSaver = savedInstanceState;
+        if (stateSaver != null) {
+            if (stateSaver.getSerializable("sort_by") != null) {
+                sort_by = (String) stateSaver.getSerializable("sort_by");
+                d("sort_by obtained from serialized state ");
+            } else {
+                sort_by = SORTBY_TOP_RATED;
+                d("EVER COME HERE? ");
+            }
+        } else {
+            sort_by = SORTBY_TOP_RATED;
+            d("stateSaver was null");
+        }
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        d(" ");
+        setHasOptionsMenu(true);
+        returnView = inflater.inflate(R.layout.fragment_movie_listing, container, false);
+        return returnView;
+    }
+
+    @Override
+    public void onResume() {
+        d(" ");
+        super.onResume();
+//        if (stateSaver != null) {
+//            sort_by = (String) stateSaver.getSerializable("sort_by");
+//        }
+        makeRequest();
+    }
+
+    public void makeRequest() {
+        FetchConfiguration configuration = new FetchConfiguration(this);
+        if (imageBaseURL.equals("") && isOnline()) {
+            configuration.execute();
+        }
+
+        FetchData movieDataService = new FetchData(this);
+        if (isOnline()) {
+            d("Making service request");
+            movieDataService.execute(sort_by);
+        } else
+            Toast.makeText(getActivity(), "Please verify your internet connection, and try again", Toast.LENGTH_SHORT).show();
+
+    }
+
+    public boolean isOnline() {
+        ConnectivityManager cm =
+                (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle state) {
+        Logger.t(10).d("Saving State sort_by  " + sort_by);
+        state.putSerializable("sort_by", sort_by);
+    }
 
     @Override
     public void onPause() {
@@ -246,34 +190,42 @@ public class MovieListing extends Fragment {
             stateSaver.putSerializable("sort_by", sort_by);
             Logger.d(stateSaver.getSerializable("sort_by").toString());
         }
-
-
     }
 
     @Override
     public void onDetach() {
-//        d("MainActivity dropped, happens only once right? ");
-
         super.onDetach();
         mListener = null;
     }
 
     @Override
-    public void onResume() {
-         d(" ");
-        super.onResume();
-        if (stateSaver != null) {
-            sort_by = (String) stateSaver.getSerializable("sort_by");
-        }
-        makeRequest();
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        Logger.t(5).d("Should only be once right? MENU");
+        menu.clear();
+        inflater.inflate(R.menu.sort, menu);
 
+        //   super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
-    public void onSaveInstanceState(Bundle state) {
-        Logger.t(10).d("Saving State sort_by  " + sort_by);
-    //    super.onSaveInstanceState(state);
-        state.putSerializable("sort_by", sort_by);
+    public boolean onOptionsItemSelected(MenuItem item) {
+        d("Only once, on inital");
+        int id = item.getItemId();
+        FetchData movieDataService = new FetchData(this);
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_top_rated) {
+
+            movieDataService.execute(SORTBY_TOP_RATED);
+            sort_by = SORTBY_TOP_RATED;
+            return true;
+        }
+
+        if (id == R.id.action_popularity) {
+            movieDataService.execute(SORTBY_POPULAR);
+            sort_by = SORTBY_POPULAR;
+            return true;
+        }
+        return false;
     }
 
     public String getImageBaseURL() {

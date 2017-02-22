@@ -51,7 +51,7 @@ public class MovieDetails extends Fragment {
                              Bundle savedInstanceState) {
 
         setHasOptionsMenu(false);
-        View detailsView = inflater.inflate(R.layout.details, container, false);
+        View detailsView = inflater.inflate(R.layout.fragment_movie_details, container, false);
         Bundle extras;
         if (savedInstanceState != null)
             extras = savedInstanceState;
@@ -109,7 +109,6 @@ public class MovieDetails extends Fragment {
         state.putSerializable(MovieResponse.THUMBNAIL.name(), thumbnail);
         state.putSerializable(MovieResponse.RELEASE_DATE.name(), release);
     }
-
 
 
 }

@@ -9,8 +9,8 @@
     tools:context="com.example.ahsan.popularmovies.activities.MainActivity"
 >
     <FrameLayout
-        android:name="com.example.ahsan.popularmovies.fragments.MovieListing"
         android:id="@+id/fragment_container"
+        android:name="com.example.ahsan.popularmovies.fragments.MovieListing"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
     >

@@ -17,7 +17,7 @@ public class MainActivity extends AppCompatActivity implements MovieListing.OnFr
 
     private FragmentManager fm;
     private FragmentTransaction fragmentTransaction;
-    private String THISTAG="ADVANCEMENT";
+    private String THISTAG = "ADVANCEMENT";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +39,6 @@ public class MainActivity extends AppCompatActivity implements MovieListing.OnFr
             fragmentTransaction.commit();
         }
     }
-
 
 
     @Override
