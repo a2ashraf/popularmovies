@@ -7,6 +7,8 @@
               android:orientation="vertical"
               tools:context="com.example.ahsan.popularmovies.activities.DetailsActivity"
               android:padding="@dimen/size_5"
+              android:weightSum="5"
+
 >
 
     <ImageView
@@ -14,6 +16,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:scaleType="fitXY"
+        android:layout_weight="4"
 
     />
     <TextView
@@ -25,6 +28,7 @@
         android:textAppearance="@style/Base.ThemeOverlay.AppCompat.Light"
         android:textSize="@dimen/size_20"
         tools:text="@string/testcontent"
+        android:layout_weight=".7"
 
     />
     <TextView
@@ -35,6 +39,7 @@
         android:textColor="@color/colorBlack"
         android:textSize="@dimen/size_12"
         tools:text="A"
+        android:layout_weight=".1"
     />
     <TextView
         android:id="@+id/rating"
@@ -45,6 +50,7 @@
         android:textColor="@color/colorBlack"
         android:textSize="@dimen/size_10"
         tools:text="@string/user_rating"
+        android:layout_weight=".1"
 
     />
     <TextView
@@ -56,6 +62,7 @@
         android:textColor="@color/colorBlack"
         android:textSize="@dimen/size_10"
         tools:text="@string/release_date"
+        android:layout_weight=".1"
     />
 
 </LinearLayout>

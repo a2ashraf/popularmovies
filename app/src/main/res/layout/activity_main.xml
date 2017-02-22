@@ -1,23 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout android:id="@+id/fragment_listing"
-              xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:background="@color/colorBlack"
-              tools:context="com.example.ahsan.popularmovies.activities.MainActivity"
+<LinearLayout
+    android:id="@+id/fragment_listing"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorWhite"
+    tools:context="com.example.ahsan.popularmovies.activities.MainActivity"
 >
-
-
-    <fragment
-        class="com.example.ahsan.popularmovies.fragments.MovieListing"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+    <FrameLayout
+        android:name="com.example.ahsan.popularmovies.fragments.MovieListing"
         android:id="@+id/fragment_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
     >
 
 
-    </fragment>
+    </FrameLayout>
 
 
-</FrameLayout>
+</LinearLayout>

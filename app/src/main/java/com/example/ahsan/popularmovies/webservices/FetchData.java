@@ -7,6 +7,7 @@ import android.util.Log;
 import com.example.ahsan.popularmovies.BuildConfig;
 import com.example.ahsan.popularmovies.R;
 import com.example.ahsan.popularmovies.fragments.MovieListing;
+import com.orhanobut.logger.Logger;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -24,7 +25,7 @@ import java.net.URL;
  */
 
 public class FetchData extends AsyncTask<String, Void, JSONArray> {
-
+    private static final String PAGINATION = "1";
     private static final String RESULTS_ARRAY = "results";
     private final String LOG_TAG = FetchData.class.getSimpleName();
     private final String LANGUAGE_LOCALE = "en_US";
@@ -47,8 +48,8 @@ public class FetchData extends AsyncTask<String, Void, JSONArray> {
             return null;
         }
 
-        String pagination = params[0];
-        String sortOrder = params[1];
+
+        String sortOrder = params[0];
 
         // These two need to be declared outside the try/catch
         // so that they can be closed in the finally block.
@@ -75,16 +76,15 @@ public class FetchData extends AsyncTask<String, Void, JSONArray> {
             }
 
 
-            if (pagination.equals("") || pagination.equals("0"))
-                pagination = "1";
-            builtUri = Uri.parse(BASE_URL).buildUpon()
+              builtUri = Uri.parse(BASE_URL).buildUpon()
                     .appendQueryParameter(LANGUAGE, LANGUAGE_LOCALE)
-                    .appendQueryParameter(PAGE_NO, pagination)
+                    .appendQueryParameter(PAGE_NO, PAGINATION)
                     .appendQueryParameter(API_KEY, BuildConfig.API_KEY).build();
 
 
             URL url = new URL(builtUri.toString());
-            Log.v(LOG_TAG, url.toString());
+            Logger.t(4).d(url.toString());
+
 
             // Create the request to OpenWeatherMap, and open the connection
             urlConnection = (HttpURLConnection) url.openConnection();
@@ -131,8 +131,8 @@ public class FetchData extends AsyncTask<String, Void, JSONArray> {
             }
         }
 
+    //    Logger.json(responseJSON.toString());
 
-        Log.v(LOG_TAG, responseJSON.toString());
 
 
         return parseResponse(responseJSON);
@@ -149,6 +149,8 @@ public class FetchData extends AsyncTask<String, Void, JSONArray> {
 
 
         } catch (JSONException e) {
+            e.printStackTrace();
+        } catch (Exception e){
             e.printStackTrace();
         }
 
