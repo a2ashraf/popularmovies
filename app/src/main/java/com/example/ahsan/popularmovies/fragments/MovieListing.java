@@ -46,12 +46,15 @@ public class MovieListing extends BaseFragment implements LoaderManager.LoaderCa
     
     public final static int MOVIE_TYPE_TOP_RATED = 1;
     public final static int MOVIE_TYPE_POPULAR = 0;
+    public final static int MOVIE_TYPE_FAVORITES = 2;
+    
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     private static final int ID_MOVIES_POPULAR = 1000;
     private static final int ID_MOVIES_TOPRATED = 2000;
+    private static final int ID_MOVIES_FAVORITES = 3000;
     private static MovieListing sInstance;
     public String imageBaseURL = "";
     protected RecyclerView recyclerView;
@@ -85,10 +88,12 @@ public class MovieListing extends BaseFragment implements LoaderManager.LoaderCa
             switch (movieType) {
                 case MOVIE_TYPE_POPULAR:
                     sInstance.setMovieType(MOVIE_TYPE_POPULAR);
-                    
                     return sInstance;
                 case MOVIE_TYPE_TOP_RATED:
                     sInstance.setMovieType(MOVIE_TYPE_TOP_RATED);
+                    return sInstance;
+                case MOVIE_TYPE_FAVORITES:
+                    sInstance.setMovieType(MOVIE_TYPE_FAVORITES);
                     return sInstance;
             }
         }
@@ -122,19 +127,19 @@ public class MovieListing extends BaseFragment implements LoaderManager.LoaderCa
         super.onCreate(savedInstanceState);
         stateSaver = savedInstanceState;
         
-        if (stateSaver != null) {
-            if (stateSaver.getSerializable("movie_type") != null) {
-                movieType = (int) stateSaver.getSerializable("movie_type");
-                d("sort_by obtained from serialized state ");
-            } else {
-                setMovieType(MOVIE_TYPE_POPULAR);
-                d("Default move search order if not saved");
-            }
-        } else {
-            setMovieType(MOVIE_TYPE_TOP_RATED);
-            
-            d("stateSaver was null");
-        }
+//        if (stateSaver != null) {
+//            if (stateSaver.getSerializable("movie_type") != null) {
+//                movieType = (int) stateSaver.getSerializable("movie_type");
+//                d("sort_by obtained from serialized state ");
+//            } else {
+//                setMovieType(MOVIE_TYPE_POPULAR);
+//                d("Default move search order if not saved");
+//            }
+//        } else {
+//            setMovieType(MOVIE_TYPE_TOP_RATED);
+//
+//            d("stateSaver was null");
+//        }
         
         
     }
@@ -157,38 +162,13 @@ public class MovieListing extends BaseFragment implements LoaderManager.LoaderCa
         } catch (JSONException e) {
             e.printStackTrace();
         }
-//        recyclerView = (RecyclerView) returnView.findViewById(R.id.movie_recycler_view);
-//        recyclerView.setHasFixedSize(true);
-//        StaggeredGridLayoutManager mLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-//        recyclerView.setLayoutManager(mLayoutManager);
-//        myAdapter = new RAdapter(this, null, mListener.getImageOption());
-//        recyclerView.setAdapter(myAdapter);
-//
-
-//        try {
-//            setData();
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
+ 
         
         
         return returnView;
     }
 
-//    @Override
-//    public void onSaveInstanceState(Bundle state) {
-//        Logger.t(10).d("Saving State sort_by  " + sort_by);
-//        state.putSerializable("sort_by", sort_by);
-//    }
-
-//    @Override
-//    public void onPause() {
-//        super.onPause();
-//        if (stateSaver != null) {
-//            stateSaver.putSerializable("sort_by", sort_by);
-//            Logger.d(stateSaver.getSerializable("sort_by").toString());
-//        }
-//    }
+ 
     
     //base?
     @Override
@@ -203,6 +183,7 @@ public class MovieListing extends BaseFragment implements LoaderManager.LoaderCa
         Logger.t(5).d("Should only be once right? MENU");
         menu.clear();
         inflater.inflate(R.menu.sort, menu);
+        //-> this is where we can save one menu and then toggle visibility if needed on other menu items to guide choices.
         
         //   super.onCreateOptionsMenu(menu, inflater);
     }
@@ -212,12 +193,13 @@ public class MovieListing extends BaseFragment implements LoaderManager.LoaderCa
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         forceLoad=true;
-    
+    Menu m = item.getSubMenu();
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_top_rated) {
             //swap fragments by calling home activity to do the work
             setMovieType(MOVIE_TYPE_TOP_RATED);
-             makeRequest(forceLoad);
+           // item.setVisible(false);
+         //   item.
             return true;
         }
         
@@ -225,16 +207,16 @@ public class MovieListing extends BaseFragment implements LoaderManager.LoaderCa
             //swap fragments by calling home activity to do the work
             setMovieType(MOVIE_TYPE_POPULAR);
             makeRequest(forceLoad);
-    
+           // item.setVisible(false);
             return true;
         }
 //
 //
-//        if (id == R.id.favorites) {
-//            //swap fragments by calling home activity to do the work
-//            sort_by = SORTBY_POPULAR;
-//            return true;
-//        }
+        if (id == R.id.action_favorites) {
+            //swap fragments by calling home activity to do the work
+            setMovieType(MOVIE_TYPE_POPULAR);
+            makeRequest(forceLoad);
+        }
         return false;
     }
     
@@ -246,9 +228,8 @@ public class MovieListing extends BaseFragment implements LoaderManager.LoaderCa
         recyclerView.setHasFixedSize(true);
         returnView.setBackgroundColor(COLOR_BLACK);
         StaggeredGridLayoutManager mLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-//        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        recyclerView.setLayoutManager(mLayoutManager);
-        myAdapter = new RAdapter(this.getContext()); //data, mListener.getImageOption());
+         recyclerView.setLayoutManager(mLayoutManager);
+        myAdapter = new RAdapter(this.getContext(),this);
         recyclerView.setAdapter(myAdapter);
         
     }
@@ -263,6 +244,9 @@ public class MovieListing extends BaseFragment implements LoaderManager.LoaderCa
                 break;
             case MOVIE_TYPE_TOP_RATED:
                 getActivity().setTitle(R.string.sort_rated);
+                break;
+            case MOVIE_TYPE_FAVORITES:
+                getActivity().setTitle(R.string.favorites);
                 break;
         }
         
@@ -316,6 +300,12 @@ public class MovieListing extends BaseFragment implements LoaderManager.LoaderCa
                     getActivity().getSupportLoaderManager().initLoader(ID_MOVIES_TOPRATED, null, this);
                 
                 break;
+            case MOVIE_TYPE_FAVORITES:
+                getActivity().setTitle(R.string.favorites);
+                if (getActivity().getSupportLoaderManager().getLoader(ID_MOVIES_FAVORITES) == null)
+                    getActivity().getSupportLoaderManager().initLoader(ID_MOVIES_FAVORITES, null, this);
+        
+                break;
         }
         
         
@@ -345,6 +335,9 @@ public class MovieListing extends BaseFragment implements LoaderManager.LoaderCa
             case (ID_MOVIES_TOPRATED):
                 uri = MovieContract.MovieTopRated.CONTENT_URI;
                 break;
+            case (ID_MOVIES_FAVORITES):
+                uri = MovieContract.FAVORITES_URI;
+                break;
             default:
                 throw new RuntimeException("Loader Not Implemented: " + id);
             
@@ -361,8 +354,7 @@ public class MovieListing extends BaseFragment implements LoaderManager.LoaderCa
         
         if (adapterPosition == RecyclerView.NO_POSITION)
             adapterPosition = 0;
-     //   recyclerView.invalidate();
-        myAdapter.swapCursor(data);
+         myAdapter.swapCursor(data);
         
         if (data.getCount() != 0) {
             
@@ -379,6 +371,8 @@ public class MovieListing extends BaseFragment implements LoaderManager.LoaderCa
         myAdapter.swapCursor(null);
     }
     
+  
+    
     
     /* This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -392,7 +386,10 @@ public class MovieListing extends BaseFragment implements LoaderManager.LoaderCa
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Bundle bundle);
-        
         Images getImageOption();
+    
     }
+    
+    
+ 
 }

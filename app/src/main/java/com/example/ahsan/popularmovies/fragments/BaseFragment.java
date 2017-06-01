@@ -19,9 +19,7 @@ public abstract class BaseFragment extends Fragment {
     public void onResume() {
         d(" ");
         super.onResume();
-//        if (stateSaver != null) {
-//            sort_by = (String) stateSaver.getSerializable("sort_by");
-//        }
+ 
         
         if (NetworkUtil.isOnline(getActivity())) {
             

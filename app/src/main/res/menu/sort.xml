@@ -4,14 +4,20 @@
       tools:context="com.example.android.sunshine.app.DetailActivity">
     <item android:id="@+id/action_popularity"
           android:orderInCategory="100"
-          android:title="Popularity"
+          android:title="@string/sort_popular"
           android:visible="true"
           app:showAsAction="never"
     />
     <item android:id="@+id/action_top_rated"
-          android:orderInCategory="100"
-          android:title="Top Rated"
+          android:orderInCategory="200"
+          android:title="@string/sort_rated"
           android:visible="true"
           app:showAsAction="never"
     />
+    <item android:id="@+id/action_favorites"
+              android:orderInCategory="300"
+              android:title="@string/favorites"
+              android:visible="true"
+              app:showAsAction="never"
+/>
 </menu>

@@ -2,7 +2,7 @@ package com.example.ahsan.popularmovies.adapters;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.support.v4.app.FragmentActivity;
+import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +12,7 @@ import android.widget.ImageView;
 import com.example.ahsan.popularmovies.R;
 import com.example.ahsan.popularmovies.Utilities.MoviePreferences;
 import com.example.ahsan.popularmovies.data.MovieContract;
+import com.example.ahsan.popularmovies.fragments.MovieListing;
 import com.squareup.picasso.Picasso;
 
 /**
@@ -21,14 +22,14 @@ import com.squareup.picasso.Picasso;
 public class RAdapter extends RecyclerView.Adapter<RAdapter.ViewHolder> {
     
     private final Context ctx;
-    FragmentActivity callingFragment;
+    MovieListing callingFragment;
     String image_base_url;
     String imagePath;
     Cursor currentCursor;
  
     
-    public RAdapter(  Context context) {
-      //  callingFragment = movieListing;
+    public RAdapter(Context context, MovieListing movieListing) {
+        callingFragment = movieListing;
         ctx = context;
         
     }
@@ -82,16 +83,19 @@ public class RAdapter extends RecyclerView.Adapter<RAdapter.ViewHolder> {
         
         @Override
         public void onClick(View v) {
-//            Result aMovie = currentCursor.get(this.getLayoutPosition());
-//            Bundle b = new Bundle();
-//            b.putString(MovieResponse.TITLE.name(), aMovie.title);
-//            b.putString(MovieResponse.OVERVIEW.name(), aMovie.overview);
-//            b.putString(MovieResponse.RATING.name(), aMovie.voteAverage + "");
-//            b.putString(MovieResponse.RELEASE_DATE.name(), aMovie.releaseDate);
-//            ((MovieListing) callingFragment).onButtonPressed(b);
+            String movieId = currentCursor.getString(currentCursor.getColumnIndex(MovieContract.Movie.COLUMN_MOVIEID));
+            Bundle b = new Bundle();
             
-        }
+            b.putString(MovieContract.Movie.COLUMN_MOVIEID,movieId);
+            callingFragment.onButtonPressed(b);
+            
+         }
+         
+         
+    
+   
     }
     
+ 
     
 }

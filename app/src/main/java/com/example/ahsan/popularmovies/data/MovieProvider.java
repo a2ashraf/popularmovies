@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -19,6 +20,7 @@ public class MovieProvider extends ContentProvider {
     private static final int CODE_MOVIES_TOPRATED = 200;
     private static final int CODE_REVIEWS = 300;
     private static final int CODE_TRAILERS = 400;
+    private static final int CODE_MOVIES_FAVORITES = 500;
     
     
     private static final UriMatcher sUriMatcher = buildUriMatcher();
@@ -28,6 +30,7 @@ public class MovieProvider extends ContentProvider {
         UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
         matcher.addURI(MovieContract.CONTENT_AUTHORITY, MovieContract.MovieTopRated.PATH, CODE_MOVIES_TOPRATED);
         matcher.addURI(MovieContract.CONTENT_AUTHORITY, MovieContract.MoviePopular.PATH, CODE_MOVIES_POPULAR);
+        matcher.addURI(MovieContract.CONTENT_AUTHORITY, MovieContract.FAVORITES_PATH, CODE_MOVIES_FAVORITES);
         
         return matcher;
     }
@@ -63,6 +66,33 @@ public class MovieProvider extends ContentProvider {
                         null,
                         null,
                         sortOrder);
+                break;
+            case CODE_MOVIES_FAVORITES:
+                //using query builder http://blog.cubeactive.com/android-creating-a-join-with-sqlite/
+                SQLiteQueryBuilder queryBuilder= new SQLiteQueryBuilder();
+                queryBuilder.setTables(MovieContract.MovieTopRated.TABLE_NAME+
+                        " LEFT OUTER JOIN " + MovieContract.MoviePopular.TABLE_NAME+ " ON " +
+                        MovieContract.MoviePopular.COLUMN_MOVIEID + " = " + MovieContract.MovieTopRated.COLUMN_MOVIEID);
+    
+                String[] whereArgs = {"0", "0"};
+                String whereClause =  MovieContract.MoviePopular.COLUMN_FAVORITES + " > ? " +  " or " + MovieContract.MovieTopRated.COLUMN_FAVORITES + " > ? ";
+                
+                cursor = queryBuilder.query(
+                       movieDBHelper.getReadableDatabase(),
+                       null,
+                       whereClause,
+                       whereArgs,
+                       null,
+                       null,
+                       sortOrder);
+//                cursor = movieDBHelper.getReadableDatabase().query(
+//                        MovieContract.MovieTopRated.TABLE_NAME,
+//                        projection,
+//                        selection,
+//                        selectionArgs,
+//                        null,
+//                        null,
+//                        sortOrder);
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown URI " + uri);

@@ -10,8 +10,10 @@ import android.provider.BaseColumns;
 public class MovieContract {
     public static final String CONTENT_AUTHORITY = "com.example.ahsan.popularmovies";
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
+    public static final String FAVORITES_PATH = "favorites";
+    public static final Uri FAVORITES_URI =  BASE_CONTENT_URI.buildUpon().appendPath(FAVORITES_PATH).build();
     
-
+    
     
     public interface  Movie  extends BaseColumns {
         public static final String COLUMN_POSTERPATH = "posterpath";
@@ -20,6 +22,8 @@ public class MovieContract {
         public static final String COLUMN_ORIGINALTITLE = "originaltitle";
         public static final String COLUMN_VOTEAVERAGE = "voteaverage";
         public static final String COLUMN_MOVIEID = "movieid";
+        public static final String COLUMN_FAVORITES = "favorites";
+        
     
     }
     
