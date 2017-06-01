@@ -162,9 +162,7 @@ public class MovieListing extends BaseFragment implements LoaderManager.LoaderCa
         } catch (JSONException e) {
             e.printStackTrace();
         }
- 
-        
-        
+
         return returnView;
     }
 
@@ -183,8 +181,6 @@ public class MovieListing extends BaseFragment implements LoaderManager.LoaderCa
         Logger.t(5).d("Should only be once right? MENU");
         menu.clear();
         inflater.inflate(R.menu.sort, menu);
-        //-> this is where we can save one menu and then toggle visibility if needed on other menu items to guide choices.
-        
         //   super.onCreateOptionsMenu(menu, inflater);
     }
     
@@ -235,23 +231,23 @@ public class MovieListing extends BaseFragment implements LoaderManager.LoaderCa
         
     }
     
-    @Override
-    public void onResume() {
-        
-        super.onResume();
-//        switch (getMovieType()) {
-//            case MOVIE_TYPE_POPULAR:
-//                getActivity().setTitle(R.string.sort_popular);
-//                break;
-//            case MOVIE_TYPE_TOP_RATED:
-//                getActivity().setTitle(R.string.sort_rated);
-//                break;
-//            case MOVIE_TYPE_FAVORITES:
-//                getActivity().setTitle(R.string.favorites);
-//                break;
-//        }
-        
-    }
+//    @Override
+//    public void onResume() {
+//
+//        super.onResume();
+////        switch (getMovieType()) {
+////            case MOVIE_TYPE_POPULAR:
+////                getActivity().setTitle(R.string.sort_popular);
+////                break;
+////            case MOVIE_TYPE_TOP_RATED:
+////                getActivity().setTitle(R.string.sort_rated);
+////                break;
+////            case MOVIE_TYPE_FAVORITES:
+////                getActivity().setTitle(R.string.favorites);
+////                break;
+////        }
+//
+//    }
 
 //
 //        RemoteMoviesAPI.getInstance().getReviews("321612",null).enqueue(new Callback<Reviews>() {
@@ -356,7 +352,7 @@ public class MovieListing extends BaseFragment implements LoaderManager.LoaderCa
             adapterPosition = 0;
          myAdapter.swapCursor(data);
         
-        if (data.getCount() != 0) {
+        if (null!=data && data.getCount() != 0) {
             
             try {
                 recyclerView.smoothScrollToPosition(adapterPosition);

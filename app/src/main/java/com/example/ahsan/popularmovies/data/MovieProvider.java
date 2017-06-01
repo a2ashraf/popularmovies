@@ -9,6 +9,11 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.example.ahsan.popularmovies.Utilities.MoviePreferences;
+
+import java.util.HashSet;
+import java.util.Iterator;
+
 /**
  * Created by Ahsan on 2017-05-29.
  */
@@ -68,36 +73,31 @@ public class MovieProvider extends ContentProvider {
                 break;
             case CODE_MOVIES_FAVORITES:
                 //using query builder http://blog.cubeactive.com/android-creating-a-join-with-sqlite/
-    
-                String query = "Select * from " + MovieContract.MovieTopRated.TABLE_NAME + " where favorites!=0 UNION ALL " +
-                        "Select * from " + MovieContract.MoviePopular.TABLE_NAME + " where favorites!=0 " ;
-//
-//                SQLiteQueryBuilder queryBuilder= new SQLiteQueryBuilder();
-//                queryBuilder.setTables(MovieContract.MovieTopRated.TABLE_NAME+
-//                        " UNION ALL  " + MovieContract.MoviePopular.TABLE_NAME);
-
-//                String[] whereArgs = {"0", "0"};
-//                String whereClause =  MovieContract.MoviePopular.COLUMN_FAVORITES + " > 1 " +  " or " + MovieContract.MovieTopRated.COLUMN_FAVORITES + " > 1 ";
-    
-    
-                cursor = movieDBHelper.getReadableDatabase().rawQuery(query,null);
-
-//                cursor = queryBuilder.query(
-//                       movieDBHelper.getReadableDatabase(),
-//                       null,
-//                       whereClause,
-//                       whereArgs,
-//                       null,
-//                       null,
-//                       sortOrder);
-//                cursor = movieDBHelper.getReadableDatabase().query(
-//                        MovieContract.MovieTopRated.TABLE_NAME,
-//                        projection,
-//                        selection,
-//                        selectionArgs,
-//                        null,
-//                        null,
-//                        sortOrder);
+                
+                HashSet<String> favoriteMovies2 = MoviePreferences.getFavoritesSet(getContext());
+                Iterator<String> favIterator = favoriteMovies2.iterator();
+                String query = "";
+                String sqltablepopular = null;
+                String sqltabletoprated = null;
+                
+                //hasnext / next order is causing you to lose your first item.  either switch order, do a for loop, or google it.
+                
+                while (favIterator.hasNext()) {
+                    String favoriteMovieId = favIterator.next();
+                    sqltablepopular = "Select * from " + MovieContract.MoviePopular.TABLE_NAME + " where " +
+                            MovieContract.MoviePopular.TABLE_NAME + "." + MovieContract.MoviePopular.COLUMN_MOVIEID + " IN(" + favoriteMovieId + ")";
+                    sqltabletoprated = "Select * from " + MovieContract.MovieTopRated.TABLE_NAME + " where " +
+                            MovieContract.MovieTopRated.TABLE_NAME + "." + MovieContract.MovieTopRated.COLUMN_MOVIEID + " IN(" + favoriteMovieId + ")";
+                    StringBuilder str = new StringBuilder(query);
+                    if (favIterator.hasNext())
+                        str.append(",");
+                }
+                
+                if (sqltablepopular == null) {
+                    return null;
+                }
+                query = sqltablepopular + " UNION " + sqltabletoprated;
+                cursor = movieDBHelper.getReadableDatabase().rawQuery(query, null);
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown URI " + uri);
@@ -122,13 +122,13 @@ public class MovieProvider extends ContentProvider {
     @Override
     public int bulkInsert(@NonNull Uri uri, @NonNull ContentValues[] values) {
         final SQLiteDatabase db = movieDBHelper.getWritableDatabase();
-        int rowsInserted=0;
-    
+        int rowsInserted = 0;
+        
         switch (sUriMatcher.match(uri)) {
-    
+            
             case CODE_MOVIES_POPULAR:
-                 db.beginTransaction();
-                 try {
+                db.beginTransaction();
+                try {
                     for (ContentValues value : values) {
                         long _id = db.insert(MovieContract.MoviePopular.TABLE_NAME, null, value);
                         if (_id != -1) {
@@ -146,8 +146,8 @@ public class MovieProvider extends ContentProvider {
                 
                 return rowsInserted;
             case CODE_MOVIES_TOPRATED:
-                 db.beginTransaction();
-                 try {
+                db.beginTransaction();
+                try {
                     for (ContentValues value : values) {
                         long _id = db.insert(MovieContract.MovieTopRated.TABLE_NAME, null, value);
                         if (_id != -1) {

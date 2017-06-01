@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import com.example.ahsan.popularmovies.R;
 import com.example.ahsan.popularmovies.Utilities.MoviePreferences;
+import com.example.ahsan.popularmovies.data.MovieContract;
 import com.example.ahsan.popularmovies.enums.MovieResponse;
 import com.orhanobut.logger.Logger;
 import com.squareup.picasso.Picasso;
@@ -89,6 +90,7 @@ public class MovieDetails extends Fragment {
                     favorites.setBackground(getResources().getDrawable(R.drawable.ic_favorite_white_24dp));
                     Toast.makeText(getContext(), "Saved!", Toast.LENGTH_SHORT).show();
                     MoviePreferences.setToFavorites(getContext(), movieId);
+                    
                 } else {
                     favorites.setBackground(getResources().getDrawable(R.drawable.ic_favorite_border_white_24dp));
                     MoviePreferences.removeFromFavorites(getContext(), movieId);
@@ -96,6 +98,7 @@ public class MovieDetails extends Fragment {
                     Toast.makeText(getContext(), "Unsaved", Toast.LENGTH_SHORT).show();
                 }
                 isFavorite = !isFavorite;
+                getContext().getContentResolver().notifyChange(MovieContract.FAVORITES_URI, null);
             }
             
         });
