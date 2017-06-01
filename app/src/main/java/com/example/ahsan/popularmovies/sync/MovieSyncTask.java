@@ -81,8 +81,7 @@ public class MovieSyncTask {
             movieDetails.put(MovieContract.Movie.COLUMN_POSTERPATH, resultList.get(index).posterPath);
             movieDetails.put(MovieContract.Movie.COLUMN_RELEASEDATE, resultList.get(index).releaseDate);
             movieDetails.put(MovieContract.Movie.COLUMN_VOTEAVERAGE, resultList.get(index).voteAverage);
-            //more?
-            listOfMovies[index] = movieDetails;
+             listOfMovies[index] = movieDetails;
             movieDetails = null;
         }
         return listOfMovies;

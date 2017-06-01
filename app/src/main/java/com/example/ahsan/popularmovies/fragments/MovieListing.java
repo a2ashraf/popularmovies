@@ -126,7 +126,7 @@ public class MovieListing extends BaseFragment implements LoaderManager.LoaderCa
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         stateSaver = savedInstanceState;
-        
+        setMovieType(MOVIE_TYPE_TOP_RATED);
 //        if (stateSaver != null) {
 //            if (stateSaver.getSerializable("movie_type") != null) {
 //                movieType = (int) stateSaver.getSerializable("movie_type");
@@ -140,7 +140,7 @@ public class MovieListing extends BaseFragment implements LoaderManager.LoaderCa
 //
 //            d("stateSaver was null");
 //        }
-        
+        makeRequest(false);
         
     }
     
@@ -193,12 +193,13 @@ public class MovieListing extends BaseFragment implements LoaderManager.LoaderCa
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         forceLoad=true;
-    Menu m = item.getSubMenu();
-        //noinspection SimplifiableIfStatement
+         //noinspection SimplifiableIfStatement
         if (id == R.id.action_top_rated) {
             //swap fragments by calling home activity to do the work
             setMovieType(MOVIE_TYPE_TOP_RATED);
-           // item.setVisible(false);
+            makeRequest(forceLoad);
+    
+            // item.setVisible(false);
          //   item.
             return true;
         }
@@ -214,7 +215,7 @@ public class MovieListing extends BaseFragment implements LoaderManager.LoaderCa
 //
         if (id == R.id.action_favorites) {
             //swap fragments by calling home activity to do the work
-            setMovieType(MOVIE_TYPE_POPULAR);
+            setMovieType(MOVIE_TYPE_FAVORITES);
             makeRequest(forceLoad);
         }
         return false;
@@ -238,17 +239,17 @@ public class MovieListing extends BaseFragment implements LoaderManager.LoaderCa
     public void onResume() {
         
         super.onResume();
-        switch (getMovieType()) {
-            case MOVIE_TYPE_POPULAR:
-                getActivity().setTitle(R.string.sort_popular);
-                break;
-            case MOVIE_TYPE_TOP_RATED:
-                getActivity().setTitle(R.string.sort_rated);
-                break;
-            case MOVIE_TYPE_FAVORITES:
-                getActivity().setTitle(R.string.favorites);
-                break;
-        }
+//        switch (getMovieType()) {
+//            case MOVIE_TYPE_POPULAR:
+//                getActivity().setTitle(R.string.sort_popular);
+//                break;
+//            case MOVIE_TYPE_TOP_RATED:
+//                getActivity().setTitle(R.string.sort_rated);
+//                break;
+//            case MOVIE_TYPE_FAVORITES:
+//                getActivity().setTitle(R.string.favorites);
+//                break;
+//        }
         
     }
 
@@ -302,7 +303,7 @@ public class MovieListing extends BaseFragment implements LoaderManager.LoaderCa
                 break;
             case MOVIE_TYPE_FAVORITES:
                 getActivity().setTitle(R.string.favorites);
-                if (getActivity().getSupportLoaderManager().getLoader(ID_MOVIES_FAVORITES) == null)
+                if (getActivity().getSupportLoaderManager().getLoader(ID_MOVIES_FAVORITES) == null|| forceLoad )
                     getActivity().getSupportLoaderManager().initLoader(ID_MOVIES_FAVORITES, null, this);
         
                 break;
@@ -317,7 +318,6 @@ public class MovieListing extends BaseFragment implements LoaderManager.LoaderCa
     
     private void setMovieType(int movieTypeTopRated) {
         movieType = movieTypeTopRated;
-        
     }
     
     public String getImageBaseURL() {

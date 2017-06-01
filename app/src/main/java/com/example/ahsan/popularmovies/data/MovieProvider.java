@@ -5,7 +5,6 @@ import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -69,22 +68,28 @@ public class MovieProvider extends ContentProvider {
                 break;
             case CODE_MOVIES_FAVORITES:
                 //using query builder http://blog.cubeactive.com/android-creating-a-join-with-sqlite/
-                SQLiteQueryBuilder queryBuilder= new SQLiteQueryBuilder();
-                queryBuilder.setTables(MovieContract.MovieTopRated.TABLE_NAME+
-                        " LEFT OUTER JOIN " + MovieContract.MoviePopular.TABLE_NAME+ " ON " +
-                        MovieContract.MoviePopular.COLUMN_MOVIEID + " = " + MovieContract.MovieTopRated.COLUMN_MOVIEID);
     
-                String[] whereArgs = {"0", "0"};
-                String whereClause =  MovieContract.MoviePopular.COLUMN_FAVORITES + " > ? " +  " or " + MovieContract.MovieTopRated.COLUMN_FAVORITES + " > ? ";
-                
-                cursor = queryBuilder.query(
-                       movieDBHelper.getReadableDatabase(),
-                       null,
-                       whereClause,
-                       whereArgs,
-                       null,
-                       null,
-                       sortOrder);
+                String query = "Select * from " + MovieContract.MovieTopRated.TABLE_NAME + " where favorites!=0 UNION ALL " +
+                        "Select * from " + MovieContract.MoviePopular.TABLE_NAME + " where favorites!=0 " ;
+//
+//                SQLiteQueryBuilder queryBuilder= new SQLiteQueryBuilder();
+//                queryBuilder.setTables(MovieContract.MovieTopRated.TABLE_NAME+
+//                        " UNION ALL  " + MovieContract.MoviePopular.TABLE_NAME);
+
+//                String[] whereArgs = {"0", "0"};
+//                String whereClause =  MovieContract.MoviePopular.COLUMN_FAVORITES + " > 1 " +  " or " + MovieContract.MovieTopRated.COLUMN_FAVORITES + " > 1 ";
+    
+    
+                cursor = movieDBHelper.getReadableDatabase().rawQuery(query,null);
+
+//                cursor = queryBuilder.query(
+//                       movieDBHelper.getReadableDatabase(),
+//                       null,
+//                       whereClause,
+//                       whereArgs,
+//                       null,
+//                       null,
+//                       sortOrder);
 //                cursor = movieDBHelper.getReadableDatabase().query(
 //                        MovieContract.MovieTopRated.TABLE_NAME,
 //                        projection,

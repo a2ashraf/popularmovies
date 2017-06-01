@@ -1,15 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent" android:layout_height="match_parent">
+
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:tools="http://schemas.android.com/tools"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              android:background="@color/colorWhite"
+              android:background="@color/colorGray"
               android:orientation="vertical"
               android:padding="@dimen/size_5"
               android:weightSum="5"
               tools:context="com.example.ahsan.popularmovies.activities.DetailsActivity"
 
+
 >
+
 
     <ImageView
         android:id="@+id/background_image"
@@ -20,13 +26,13 @@
 
     />
 
+
     <ImageView
         android:id="@+id/favorites"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@android:drawable/"
+        android:background="@drawable/ic_favorite_border_white_24dp"
         android:scaleType="fitXY"
-
     />
 
 
@@ -39,7 +45,7 @@
         android:padding="@dimen/size_10"
         android:textAppearance="@style/Base.ThemeOverlay.AppCompat.Light"
         android:textSize="@dimen/size_20"
-        tools:text="@string/testcontent"
+        tools:text="THIS IS A TEST TITLE"
 
     />
     <TextView
@@ -77,3 +83,4 @@
     />
 
 </LinearLayout>
+</ScrollView>

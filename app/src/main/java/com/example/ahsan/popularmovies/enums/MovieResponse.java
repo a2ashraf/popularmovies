@@ -9,8 +9,11 @@ public enum MovieResponse {
     THUMBNAIL("poster_path"),
     OVERVIEW("overview"),
     RELEASE_DATE("release_date"),
-    RATING("vote_average"),;
-
+    RATING("vote_average"),
+    MOVIEID("movie_id"),
+    FAVORITE("is_favorite"),
+    POSTERPATH("poster_path");
+    
     public String value;
 
     MovieResponse(String title) {

@@ -11,7 +11,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class MovieDBHelper extends SQLiteOpenHelper {
    
    private static String DB_NAME = "movies.db";
-   private static int VERSION= 2;
+   private static int VERSION= 1;
     
    
     public MovieDBHelper(Context context) {
@@ -35,7 +35,7 @@ public class MovieDBHelper extends SQLiteOpenHelper {
         
                         MovieContract.MoviePopular.COLUMN_RELEASEDATE   + " REAL NOT NULL, "                    +
                         MovieContract.MoviePopular.COLUMN_VOTEAVERAGE   + " REAL NOT NULL, "                    +
-                        MovieContract.MoviePopular.COLUMN_FAVORITES   + " REAL NOT NULL, "                    +
+                        MovieContract.MoviePopular.COLUMN_FAVORITES   + " REAL, "                    +
         
      
                         " UNIQUE (" +  MovieContract.MoviePopular.COLUMN_MOVIEID  + ") ON CONFLICT REPLACE);";
@@ -54,7 +54,7 @@ public class MovieDBHelper extends SQLiteOpenHelper {
                     
                         MovieContract.MovieTopRated.COLUMN_RELEASEDATE   + " REAL NOT NULL, "                    +
                         MovieContract.MovieTopRated.COLUMN_VOTEAVERAGE   + " REAL NOT NULL, "                    +
-                        MovieContract.MovieTopRated.COLUMN_FAVORITES   + " REAL NOT NULL, "                    +
+                        MovieContract.MovieTopRated.COLUMN_FAVORITES   + " REAL, "                    +
                         
                         " UNIQUE (" +  MovieContract.MovieTopRated.COLUMN_MOVIEID  + ") ON CONFLICT REPLACE);";
         db.execSQL(SQL_CREATE_MOVIE_TOP_RATED_TABLE);

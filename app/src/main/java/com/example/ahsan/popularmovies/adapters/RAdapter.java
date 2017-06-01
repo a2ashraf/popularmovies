@@ -12,8 +12,11 @@ import android.widget.ImageView;
 import com.example.ahsan.popularmovies.R;
 import com.example.ahsan.popularmovies.Utilities.MoviePreferences;
 import com.example.ahsan.popularmovies.data.MovieContract;
+import com.example.ahsan.popularmovies.enums.MovieResponse;
 import com.example.ahsan.popularmovies.fragments.MovieListing;
 import com.squareup.picasso.Picasso;
+
+import static com.example.ahsan.popularmovies.data.MovieContract.Movie.COLUMN_MOVIEID;
 
 /**
  * Created by Ahsan on 2017-02-07.
@@ -26,7 +29,7 @@ public class RAdapter extends RecyclerView.Adapter<RAdapter.ViewHolder> {
     String image_base_url;
     String imagePath;
     Cursor currentCursor;
- 
+    
     
     public RAdapter(Context context, MovieListing movieListing) {
         callingFragment = movieListing;
@@ -83,19 +86,40 @@ public class RAdapter extends RecyclerView.Adapter<RAdapter.ViewHolder> {
         
         @Override
         public void onClick(View v) {
-            String movieId = currentCursor.getString(currentCursor.getColumnIndex(MovieContract.Movie.COLUMN_MOVIEID));
+            currentCursor.moveToPosition(getAdapterPosition());
+            String movieId = currentCursor.getString(currentCursor.getColumnIndex(COLUMN_MOVIEID));
+            String rating = currentCursor.getString(currentCursor.getColumnIndex(MovieContract.Movie.COLUMN_VOTEAVERAGE));
+            String releasedate = currentCursor.getString(currentCursor.getColumnIndex(MovieContract.Movie.COLUMN_RELEASEDATE));
+            String posterpath = currentCursor.getString(currentCursor.getColumnIndex(MovieContract.Movie.COLUMN_POSTERPATH));
+            String overview = currentCursor.getString(currentCursor.getColumnIndex(MovieContract.Movie.COLUMN_OVERVIEW));
+            String originaltitle = currentCursor.getString(currentCursor.getColumnIndex(MovieContract.Movie.COLUMN_ORIGINALTITLE));
+            String favorite = currentCursor.getString(currentCursor.getColumnIndex(MovieContract.Movie.COLUMN_FAVORITES));
+            
             Bundle b = new Bundle();
             
-            b.putString(MovieContract.Movie.COLUMN_MOVIEID,movieId);
+            b.putString(MovieResponse.MOVIEID.name(), movieId);
+            
+            b.putString(MovieResponse.RATING.name(), rating);
+            
+            b.putString(MovieResponse.RELEASE_DATE.name(), releasedate);
+            
+            b.putString(MovieResponse.POSTERPATH.name(), posterpath);
+            
+            b.putString(MovieResponse.OVERVIEW.name(), overview);
+            
+            b.putString(MovieResponse.TITLE.name(), originaltitle);
+            
+            if(MoviePreferences.isInFavorites(ctx,movieId))
+                b.putBoolean(MovieResponse.FAVORITE.name(), true);
+            else
+                b.putBoolean(MovieResponse.FAVORITE.name(), false);
+            
             callingFragment.onButtonPressed(b);
             
-         }
-         
-         
-    
-   
+        }
+        
+        
     }
     
- 
     
 }
