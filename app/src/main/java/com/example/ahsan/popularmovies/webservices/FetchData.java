@@ -64,14 +64,14 @@ public class FetchData extends AsyncTask<String, Void, JSONArray> {
 
             String BASE_URL = "";
             Uri builtUri = null;
-
-
-            if (sortOrder.equals(fragment.SORTBY_TOP_RATED)) {
-
-                BASE_URL = fragment.getString(R.string.top_rated_movie_url);
-            } else if (sortOrder.equals(fragment.SORTBY_POPULAR)) {
-                BASE_URL = fragment.getString(R.string.popular_movie_url);
-            }
+//
+//
+//            if (sortOrder.equals(fragment.SORTBY_TOP_RATED)) {
+//
+//                BASE_URL = fragment.getString(R.string.top_rated_movie_url);
+//            } else if (sortOrder.equals(fragment.SORTBY_POPULAR)) {
+//                BASE_URL = fragment.getString(R.string.popular_movie_url);
+//            }
 
 
               builtUri = Uri.parse(BASE_URL).buildUpon()
@@ -159,14 +159,14 @@ public class FetchData extends AsyncTask<String, Void, JSONArray> {
 
     @Override
     protected void onPostExecute(JSONArray result) {
-        if (result != null) {
-            try {
-
-                fragment.setData(result);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
+//        if (result != null) {
+//            try {
+//
+//                fragment.setData(result);
+//            } catch (JSONException e) {
+//                e.printStackTrace();
+//            }
+//        }
 
     }
 }

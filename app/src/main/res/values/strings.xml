@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">PopularMovies</string>
+    <string name="app_name">2 - Popular Movies</string>
     <string name="title_activity_details">DetailsActivity</string>
     <string name="top_rated_movie_url">https://api.themoviedb.org/3/movie/top_rated?</string>
     <string name="popular_movie_url">https://api.themoviedb.org/3/movie/popular?</string>
@@ -7,6 +7,9 @@
     <string name="configuration_url">https://api.themoviedb.org/3/configuration?</string>
     <string name="user_rating">Rating</string>
     <string name="release_date">Released on:</string>
+    <string name="sort_popular">Popular Movies</string>
+    <string name="sort_rated">Top Rated Movies</string>
+
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

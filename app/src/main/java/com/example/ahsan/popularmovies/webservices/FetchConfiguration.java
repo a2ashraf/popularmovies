@@ -7,7 +7,7 @@ import android.util.Log;
 
 import com.example.ahsan.popularmovies.BuildConfig;
 import com.example.ahsan.popularmovies.R;
-import com.example.ahsan.popularmovies.fragments.MovieListing;
+import com.orhanobut.logger.Logger;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -126,16 +126,13 @@ public class FetchConfiguration extends AsyncTask<String, Void, String > {
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             }
-
-
-
         return null;
     }
 
 
     private String parseConfigJson(String json){
             String IMAGE_SIZE = fragment.getString(R.string.image_size);
-        ;
+        
            try {
                JSONObject rootResponse = new JSONObject(json);
                JSONObject imagesJSON = rootResponse.getJSONObject(IMAGES);
@@ -144,6 +141,7 @@ public class FetchConfiguration extends AsyncTask<String, Void, String > {
 
 
            } catch (JSONException e) {
+               Logger.d("Problem in parse!");
                e.printStackTrace();
            }
 
@@ -155,11 +153,11 @@ public class FetchConfiguration extends AsyncTask<String, Void, String > {
 
 
 
-    @Override
-    protected void onPostExecute(String  result) {
-        if (result != null) {
-            ((MovieListing)fragment).setImageBaseURL(result);
-        }
-
-    }
+//    @Override
+//    protected void onPostExecute(String  result) {
+//        if (result != null) {
+//            ((MovieListing)fragment).setImageBaseURL(result);
+//        }
+//
+//    }
 }
