@@ -120,6 +120,7 @@ public class MovieSyncTask {
     
     private static ContentValues[] getContentValuesFromMovieLookup(Response<Movies> response) {
         List<MovieResult> movieResultList = response.body().movieResults;
+        
         ContentValues[] listOfMovies = new ContentValues[movieResultList.size()];
         ContentValues movie;
         for (int index = 0; index < movieResultList.size(); index++) {
@@ -132,6 +133,7 @@ public class MovieSyncTask {
             movie.put(MovieContract.Movie.COLUMN_VOTEAVERAGE, movieResultList.get(index).voteAverage);
             listOfMovies[index] = movie;
          }
+         
         return listOfMovies;
     }
     

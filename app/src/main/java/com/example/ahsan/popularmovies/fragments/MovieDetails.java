@@ -85,9 +85,6 @@ public class MovieDetails extends Fragment implements LoaderManager.LoaderCallba
         trailersRecycleView.setHasFixedSize(true);
         trailersRecycleView.setLayoutManager(layoutManager);
         
-        trailerAdapter = new TrailerAdapter(getContext(), true);
-        trailersRecycleView.setAdapter(trailerAdapter);
-        loadTrailers();
         
         if (extras != null) {
             title = extras.getString(MovieResponse.TITLE.name());
@@ -98,9 +95,16 @@ public class MovieDetails extends Fragment implements LoaderManager.LoaderCallba
             isFavorite = extras.getBoolean(MovieResponse.FAVORITE.name());
             movieId = extras.getString(MovieResponse.MOVIEID.name());
             MovieUtils.initialize(getContext(), ACTION_LOOKUP_TRAILERS,Integer.valueOf(movieId));
-    
-            //   getReviews();
+            trailerAdapter = new TrailerAdapter(getContext(), Integer.parseInt(movieId));
+            trailersRecycleView.setAdapter(trailerAdapter);
+            trailerAdapter.notifyDataSetChanged();
+            TextView mvid = (TextView) detailsView.findViewById(R.id.id_movie);
+            mvid.setText(movieId);
+            //   getReviews();   // call the qury with values instead of null...
+            
         }
+        loadTrailers();
+    
         final ImageView favorites = (ImageView) detailsView.findViewById(R.id.favorites);
         if (isFavorite) {
             favorites.setBackground(getResources().getDrawable(R.drawable.ic_favorite_white_24dp));
@@ -210,7 +214,9 @@ public class MovieDetails extends Fragment implements LoaderManager.LoaderCallba
             
             
         }
-        CursorLoader loader = new CursorLoader(getContext(), uri, null, null, null, null);
+        String selection = MovieContract.Movie.COLUMN_MOVIEID + " = ? ";
+        String[] qualification= new String[] {String.valueOf(movieId)};
+        CursorLoader loader = new CursorLoader(getContext(), uri, null, selection, qualification, null);
         
         return loader;
     }
@@ -235,6 +241,8 @@ public class MovieDetails extends Fragment implements LoaderManager.LoaderCallba
         } else {
             // MovieUtils.startSyncWithWeb(getContext(), ACTION_LOOKUP_TRAILERS, Integer.parseInt(movieId));
             trailerAdapter.swapCursor(data);
+            trailerAdapter.setmId(Integer.parseInt(movieId));
+            
             if (mPosition == RecyclerView.NO_POSITION) mPosition = 0;
             trailersRecycleView.smoothScrollToPosition(mPosition);
         }

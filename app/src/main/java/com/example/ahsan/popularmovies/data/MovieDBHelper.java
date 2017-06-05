@@ -11,7 +11,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class MovieDBHelper extends SQLiteOpenHelper {
    
    private static String DB_NAME = "movies.db";
-   private static int VERSION= 2;
+   private static int VERSION= 4;
     
    
     public MovieDBHelper(Context context) {
@@ -73,9 +73,8 @@ public class MovieDBHelper extends SQLiteOpenHelper {
                 "CREATE TABLE " + MovieContract.MovieTrailers.TABLE_NAME + " (" +
                         MovieContract.MovieTrailers._ID               + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                         MovieContract.MovieTrailers.COLUMN_MOVIEID       + " INTEGER NOT NULL, "                 +
-                        MovieContract.MovieTrailers.COLUMN_TRAILER_KEY       + " INTEGER NOT NULL, "                 +
-                        " UNIQUE (" +  MovieContract.MovieTrailers.COLUMN_MOVIEID  + ") ON CONFLICT REPLACE);";
-        
+                        MovieContract.MovieTrailers.COLUMN_TRAILER_KEY       + " REAL NOT NULL); "                 ;
+         
         db.execSQL(SQL_CREATE_MOVIE_REVIEWS_TABLE);
         db.execSQL(SQL_CREATE_MOVIE_TRAILERS_TABLE);
         db.execSQL(SQL_CREATE_MOVIE_TOP_RATED_TABLE);
@@ -86,6 +85,8 @@ public class MovieDBHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + MovieContract.MoviePopular.TABLE_NAME);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + MovieContract.MovieTopRated.TABLE_NAME);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + MovieContract.MovieTrailers.TABLE_NAME);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + MovieContract.MovieReview.TABLE_NAME);
         onCreate(sqLiteDatabase);
     }
 }

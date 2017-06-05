@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements MovieListing.OnFr
 //           MovieListing movieListingPopular = MovieListing.newInstance(MovieListing.MOVIE_TYPE_POPULAR);
             fm = getSupportFragmentManager();
             fragmentTransaction = fm.beginTransaction();
-            fragmentTransaction.add(R.id.fragment_container, movieListingRated);
+            fragmentTransaction.replace(R.id.fragment_container, movieListingRated);
             fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
             fragmentTransaction.commit();
             

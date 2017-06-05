@@ -12,6 +12,7 @@ import android.widget.ImageView;
 
 import com.example.ahsan.popularmovies.R;
 import com.example.ahsan.popularmovies.data.MovieContract;
+import com.orhanobut.logger.Logger;
 import com.squareup.picasso.RequestCreator;
 
 import static com.squareup.picasso.Picasso.with;
@@ -21,14 +22,19 @@ import static com.squareup.picasso.Picasso.with;
  */
 
 public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.ViewHolder> {
-    
+    private final String YOUTUBE_URL = "http://www.youtube.com/watch?v=";
+    private int mId;
     private Cursor currentCursor;
     private Context ctx;
-    private final String YOUTUBE_URL = "http://www.youtube.com/watch?v=";
-    public TrailerAdapter(Context context, boolean autoRequery) {
-    ctx = context;
+    
+    public TrailerAdapter(Context context, int movieid) {
+        mId = movieid;
+        ctx = context;
     }
     
+    public void setmId(int mId) {
+        this.mId = mId;
+    }
     
     public void swapCursor(Cursor newCursor) {
         currentCursor = newCursor;
@@ -37,12 +43,12 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.ViewHold
     
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View trailerItem= LayoutInflater.from(ctx).inflate(R.layout.layout_list_view_row_trailers, parent, false);
+        View trailerItem = LayoutInflater.from(ctx).inflate(R.layout.layout_list_view_row_trailers, parent, false);
         ViewHolder viewHolder = new ViewHolder(trailerItem);
         trailerItem.setFocusable(true);
-    
+        
         return viewHolder;
-    
+        
     }
     
     @Override
@@ -50,15 +56,22 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.ViewHold
         currentCursor.moveToPosition(position);
         
         int imageColumnIndex = currentCursor.getColumnIndex(MovieContract.MovieTrailers.COLUMN_TRAILER_KEY);
-        final String imageKey= currentCursor.getString(imageColumnIndex);
-        holder.setKey( imageKey);
-        with(ctx).load("https://img.youtube.com/vi/"+holder.key+"/2.jpg").into(holder.trailerThumbnail);
-    
+        int movieIdIndex = currentCursor.getColumnIndex(MovieContract.MovieTrailers.COLUMN_MOVIEID);
+        
+        final String imageKey = currentCursor.getString(imageColumnIndex);
+        final int movieId = Integer.parseInt(currentCursor.getString(movieIdIndex));
+        if (movieId == mId){
+            holder.setKey(imageKey);
+        }
+            
+        
+        Logger.d("https://img.youtube.com/vi/" + holder.key + "/2.jpg");
+        with(ctx).load("https://img.youtube.com/vi/" + holder.key + "/2.jpg").into(holder.trailerThumbnail);
+        
         RequestCreator picassoLoadRequest = with(ctx).load("https://img.youtube.com/vi/" + holder.key + "/1.jpg");
-        if(picassoLoadRequest!=null)
+        if (picassoLoadRequest != null)
             picassoLoadRequest.into(holder.trailerThumbnail);
-                
-                
+        
         
     }
     
@@ -75,40 +88,40 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.ViewHold
     
     
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-    
-        private ImageView trailerThumbnail;
-    
-        public void setKey(String key) {
-            this.key = key;
-        }
-    
+        
         String key;
+        private ImageView trailerThumbnail;
+        
         public ViewHolder(View itemView) {
             super(itemView);
             trailerThumbnail = (ImageView) itemView.findViewById(R.id.trailer_imageview);
             trailerThumbnail.setOnClickListener(this);
         }
-    
+        
+        public void setKey(String key) {
+            this.key = key;
+        }
+        
         @Override
         public void onClick(View v) {
-            playVideo(key);
+//            playVideo(key);
         }
-        public void playVideo(String key){
         
+        public void playVideo(String key) {
+            
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + key));
-        
+            
             // Check if the youtube app exists on the device
             if (intent.resolveActivity(ctx.getPackageManager()) == null) {
                 // If the youtube app doesn't exist, then use the browser
                 intent = new Intent(Intent.ACTION_VIEW,
                         Uri.parse(YOUTUBE_URL + key));
             }
-        
+            
             ctx.startActivity(intent);
         }
-    
+        
     }
     
     
-     
 }

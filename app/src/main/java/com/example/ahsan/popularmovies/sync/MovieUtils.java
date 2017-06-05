@@ -22,16 +22,15 @@ public class MovieUtils {
     
     public static final String MOVIE_ID = "movie_id";
     public static final String ACTION_LOOKUP = "network_movie_action";
-    private static boolean initialized;
+    private static boolean movieTable;
     public static final int ACTION_LOOKUP_REVIEWS = 100;
     public static final int ACTION_LOOKUP_TRAILERS = 200;
     public static final int ACTION_LOOKUP_MOVIES = 300;
+    private static boolean trailerTable;
     
     
-    synchronized public static void initialize(@NonNull final Context context, @Nullable final int action, @Nullable final int movieid){
-        if(initialized) return;
-        
-        initialized = true;
+    synchronized public static void initialize(@NonNull final Context context, @Nullable final int action, @Nullable final int movieid ){
+         
     /*
     * check if one of the two tables exist, if not, we attempt to update database asap.
     * */
@@ -55,17 +54,17 @@ public class MovieUtils {
                 String qualification[] = null;
                 switch(action){
                     case(ACTION_LOOKUP_REVIEWS):
-                       moviesUri = MovieContract.MoviePopular.CONTENT_URI;
+                       moviesUri = MovieContract.MovieReview.CONTENT_URI;
                           selection = MovieContract.Movie.COLUMN_MOVIEID;
                           qualification= new String[] {String.valueOf(movieid)};
                              break;
                     case (ACTION_LOOKUP_TRAILERS):
                         moviesUri = MovieContract.MovieTrailers.CONTENT_URI;
-                          selection = MovieContract.Movie.COLUMN_MOVIEID;
+                        selection = MovieContract.Movie.COLUMN_MOVIEID + " = ? ";
                           qualification= new String[] {String.valueOf(movieid)};
                          break;
                     case (ACTION_LOOKUP_MOVIES):
-                         moviesUri = MovieContract.MovieReview.CONTENT_URI;
+                         moviesUri = MovieContract.MovieTopRated.CONTENT_URI;
                          break;
                     default:
                         throw new UnsupportedOperationException("Unrewcognized URI:" + action);
