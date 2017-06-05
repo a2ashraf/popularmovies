@@ -21,7 +21,7 @@ public abstract class BaseFragment extends Fragment {
         super.onResume();
  
         
-        if (NetworkUtil.isOnline(getActivity())) {
+        if (NetworkUtil.isOnline(getActivity().getApplicationContext())) {
             
             makeRequest(true);
         } else

@@ -11,7 +11,6 @@ import android.support.annotation.Nullable;
 
 import com.example.ahsan.popularmovies.Utilities.MoviePreferences;
 
-import java.util.HashSet;
 import java.util.Iterator;
 
 /**
@@ -35,6 +34,8 @@ public class MovieProvider extends ContentProvider {
         matcher.addURI(MovieContract.CONTENT_AUTHORITY, MovieContract.MovieTopRated.PATH, CODE_MOVIES_TOPRATED);
         matcher.addURI(MovieContract.CONTENT_AUTHORITY, MovieContract.MoviePopular.PATH, CODE_MOVIES_POPULAR);
         matcher.addURI(MovieContract.CONTENT_AUTHORITY, MovieContract.FAVORITES_PATH, CODE_MOVIES_FAVORITES);
+        matcher.addURI(MovieContract.CONTENT_AUTHORITY, MovieContract.MovieTrailers.PATH, CODE_TRAILERS);
+        matcher.addURI(MovieContract.CONTENT_AUTHORITY, MovieContract.MovieReview.PATH, CODE_REVIEWS);
         
         return matcher;
     }
@@ -51,6 +52,27 @@ public class MovieProvider extends ContentProvider {
     public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
         Cursor cursor;
         switch (sUriMatcher.match(uri)) {
+    
+            case CODE_TRAILERS:
+                cursor = movieDBHelper.getReadableDatabase().query(
+                        MovieContract.MovieTrailers.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder);
+                break;
+            case CODE_REVIEWS:
+                cursor = movieDBHelper.getReadableDatabase().query(
+                        MovieContract.MovieReview.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder);
+                break;
             case CODE_MOVIES_POPULAR:
                 cursor = movieDBHelper.getReadableDatabase().query(
                         MovieContract.MoviePopular.TABLE_NAME,
@@ -73,26 +95,23 @@ public class MovieProvider extends ContentProvider {
                 break;
             case CODE_MOVIES_FAVORITES:
                 //using query builder http://blog.cubeactive.com/android-creating-a-join-with-sqlite/
-                
-                HashSet<String> favoriteMovies2 = MoviePreferences.getFavoritesSet(getContext());
-                Iterator<String> favIterator = favoriteMovies2.iterator();
+                Iterator<String> favIterator =  MoviePreferences.getFavoritesSet(getContext()).iterator();
                 String query = "";
                 String sqltablepopular = null;
                 String sqltabletoprated = null;
                 
-                //hasnext / next order is causing you to lose your first item.  either switch order, do a for loop, or google it.
-                
-                while (favIterator.hasNext()) {
-                    String favoriteMovieId = favIterator.next();
-                    sqltablepopular = "Select * from " + MovieContract.MoviePopular.TABLE_NAME + " where " +
-                            MovieContract.MoviePopular.TABLE_NAME + "." + MovieContract.MoviePopular.COLUMN_MOVIEID + " IN(" + favoriteMovieId + ")";
-                    sqltabletoprated = "Select * from " + MovieContract.MovieTopRated.TABLE_NAME + " where " +
-                            MovieContract.MovieTopRated.TABLE_NAME + "." + MovieContract.MovieTopRated.COLUMN_MOVIEID + " IN(" + favoriteMovieId + ")";
-                    StringBuilder str = new StringBuilder(query);
+                String favoriteMovieId = null;
+                StringBuilder listIDs = new StringBuilder(query);
+                 while (favIterator.hasNext()) {
+                    favoriteMovieId = favIterator.next();
+                     listIDs.append(favoriteMovieId);
                     if (favIterator.hasNext())
-                        str.append(",");
+                        listIDs.append(",");
                 }
-                
+                sqltablepopular = "Select * from " + MovieContract.MoviePopular.TABLE_NAME + " where " +
+                        MovieContract.MoviePopular.TABLE_NAME + "." + MovieContract.MoviePopular.COLUMN_MOVIEID + " IN(" + listIDs + ")";
+                sqltabletoprated = "Select * from " + MovieContract.MovieTopRated.TABLE_NAME + " where " +
+                        MovieContract.MovieTopRated.TABLE_NAME + "." + MovieContract.MovieTopRated.COLUMN_MOVIEID + " IN(" + listIDs + ")";
                 if (sqltablepopular == null) {
                     return null;
                 }
@@ -164,7 +183,25 @@ public class MovieProvider extends ContentProvider {
                 }
                 
                 return rowsInserted;
-            
+            case CODE_TRAILERS:
+                db.beginTransaction();
+                try {
+                    for (ContentValues value : values) {
+                        long _id = db.insert(MovieContract.MovieTrailers.TABLE_NAME, null, value);
+                        if (_id != -1) {
+                            rowsInserted++;
+                        }
+                    }
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
+        
+                if (rowsInserted > 0) {
+                    getContext().getContentResolver().notifyChange(uri, null);
+                }
+        
+                return rowsInserted;
             default:
                 return super.bulkInsert(uri, values);
         }

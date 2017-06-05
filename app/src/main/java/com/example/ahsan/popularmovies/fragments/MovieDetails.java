@@ -1,8 +1,16 @@
 package com.example.ahsan.popularmovies.fragments;
 
+import android.database.Cursor;
 import android.graphics.Point;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,24 +22,30 @@ import android.widget.Toast;
 
 import com.example.ahsan.popularmovies.R;
 import com.example.ahsan.popularmovies.Utilities.MoviePreferences;
+import com.example.ahsan.popularmovies.adapters.TrailerAdapter;
 import com.example.ahsan.popularmovies.data.MovieContract;
 import com.example.ahsan.popularmovies.enums.MovieResponse;
-import com.orhanobut.logger.Logger;
+import com.example.ahsan.popularmovies.sync.MovieUtils;
 import com.squareup.picasso.Picasso;
 
 import static com.example.ahsan.popularmovies.Utilities.MoviePreferences.DEFAULT_BACKDROP_SIZE;
+import static com.example.ahsan.popularmovies.sync.MovieUtils.ACTION_LOOKUP_TRAILERS;
 
-public class MovieDetails extends Fragment {
+public class MovieDetails extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+    private static final int ID_MOVIE_REVIEWS = 6000;
+    private static final int ID_MOVIE_TRAILERS = 5000;
     // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     
     String title = "";
     String overview = "";
     String rating = "0";
     String release = "";
     String thumbnail = null;
+    RecyclerView trailersRecycleView;
     private boolean isFavorite;
     private String movieId;
+    private TrailerAdapter trailerAdapter;
+    private int mPosition = RecyclerView.NO_POSITION;
     
     // TODO: Rename and change types and number of parameters
     public static MovieDetails newInstance(Bundle bundle) {
@@ -51,6 +65,7 @@ public class MovieDetails extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
+        
     }
     
     @Override
@@ -65,6 +80,14 @@ public class MovieDetails extends Fragment {
         else
             extras = this.getArguments();
         
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
+        trailersRecycleView = (RecyclerView) detailsView.findViewById(R.id.movie_trailers);
+        trailersRecycleView.setHasFixedSize(true);
+        trailersRecycleView.setLayoutManager(layoutManager);
+        
+        trailerAdapter = new TrailerAdapter(getContext(), true);
+        trailersRecycleView.setAdapter(trailerAdapter);
+        loadTrailers();
         
         if (extras != null) {
             title = extras.getString(MovieResponse.TITLE.name());
@@ -74,7 +97,9 @@ public class MovieDetails extends Fragment {
             release = extras.getString(MovieResponse.RELEASE_DATE.name());
             isFavorite = extras.getBoolean(MovieResponse.FAVORITE.name());
             movieId = extras.getString(MovieResponse.MOVIEID.name());
-            
+            MovieUtils.initialize(getContext(), ACTION_LOOKUP_TRAILERS,Integer.valueOf(movieId));
+    
+            //   getReviews();
         }
         final ImageView favorites = (ImageView) detailsView.findViewById(R.id.favorites);
         if (isFavorite) {
@@ -89,12 +114,11 @@ public class MovieDetails extends Fragment {
                 if (!isFavorite) {
                     favorites.setBackground(getResources().getDrawable(R.drawable.ic_favorite_white_24dp));
                     Toast.makeText(getContext(), "Saved!", Toast.LENGTH_SHORT).show();
-                    MoviePreferences.setToFavorites(getContext(), movieId);
+                    MoviePreferences.addToFavorites(getContext().getApplicationContext(), movieId);
                     
                 } else {
                     favorites.setBackground(getResources().getDrawable(R.drawable.ic_favorite_border_white_24dp));
-                    MoviePreferences.removeFromFavorites(getContext(), movieId);
-                    
+                    MoviePreferences.removeFromFavorites(getContext().getApplicationContext(), movieId);
                     Toast.makeText(getContext(), "Unsaved", Toast.LENGTH_SHORT).show();
                 }
                 isFavorite = !isFavorite;
@@ -114,7 +138,6 @@ public class MovieDetails extends Fragment {
         release_view.setText(release_view.getText() + "  " + release.toString());
         
         final ImageView background_view = (ImageView) detailsView.findViewById(R.id.background_image);
-//        final String finalThumbnail = MoviePreferences.getBaseUrl(getContext()) + MoviePreferences.getBackDropSize(getContext()) + thumbnail;
         final String finalThumbnail = MoviePreferences.getBaseUrl(getContext()) + DEFAULT_BACKDROP_SIZE + thumbnail;
         
         Display display = getActivity().getWindowManager().getDefaultDisplay();
@@ -135,19 +158,100 @@ public class MovieDetails extends Fragment {
         return detailsView;
     }
     
-    @Override
-    public void onSaveInstanceState(Bundle state) {
-        super.onSaveInstanceState(state);
-        Logger.d("Saving State sort_by");
-        state.putSerializable(MovieResponse.TITLE.name(), title);
-        state.putSerializable(MovieResponse.OVERVIEW.name(), overview);
-        state.putSerializable(MovieResponse.RATING.name(), rating);
-        state.putSerializable(MovieResponse.THUMBNAIL.name(), thumbnail);
-        state.putSerializable(MovieResponse.RELEASE_DATE.name(), release);
-        state.putSerializable(MovieResponse.FAVORITE.name(), isFavorite);
-        state.putSerializable(MovieResponse.MOVIEID.name(), movieId);
+    private void loadTrailers() {
+        getActivity().getSupportLoaderManager().initLoader(ID_MOVIE_TRAILERS, null, this);
+
+//        if (getActivity().getSupportLoaderManager().getLoader(ID_MOVIE_TRAILERS) == null)
+//            getActivity().getSupportLoaderManager().initLoader(ID_MOVIE_TRAILERS, null, this);
+//        else{
+//            getActivity().getSupportLoaderManager().getLoader(ID_MOVIE_TRAILERS).reset();
+//            getActivity().getSupportLoaderManager().initLoader(ID_MOVIE_TRAILERS, null, this);
+//        }
         
+    }
+
+//    @Override
+//    public void onSaveInstanceState(Bundle state) {
+//        super.onSaveInstanceState(state);
+//        Logger.d("Saving State sort_by");
+//        state.putSerializable(MovieResponse.TITLE.name(), title);
+//        state.putSerializable(MovieResponse.OVERVIEW.name(), overview);
+//        state.putSerializable(MovieResponse.RATING.name(), rating);
+//        state.putSerializable(MovieResponse.THUMBNAIL.name(), thumbnail);
+//        state.putSerializable(MovieResponse.RELEASE_DATE.name(), release);
+//        state.putSerializable(MovieResponse.FAVORITE.name(), isFavorite);
+//        state.putSerializable(MovieResponse.MOVIEID.name(), movieId);
+//
+//    }
+    
+    private void getReviews() {
+        if (getActivity().getSupportLoaderManager().getLoader(ID_MOVIE_REVIEWS) == null)
+            getActivity().getSupportLoaderManager().initLoader(ID_MOVIE_REVIEWS, null, this);
     }
     
     
+    //put in adapter to play movie.
+    
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        
+        Uri uri = null;
+        switch (id) {
+            case (ID_MOVIE_REVIEWS):
+                //return a cursor to this URI
+                uri = MovieContract.MovieReview.CONTENT_URI;
+                break;
+            case (ID_MOVIE_TRAILERS):
+                //return a cursor to this URI
+                uri = MovieContract.MovieTrailers.CONTENT_URI;
+                break;
+            default:
+                throw new RuntimeException("Loader Not Implemented: " + id);
+            
+            
+        }
+        CursorLoader loader = new CursorLoader(getContext(), uri, null, null, null, null);
+        
+        return loader;
+    }
+    
+    
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        
+        if (data == null) {
+            return;
+        }
+        
+        if (data.getCount() < 1 ) {
+            new AsyncTask<Void, Void, Void>() {
+                @Override
+                protected Void doInBackground(Void... params) {
+                    MovieUtils.startSyncWithWeb(getContext(), ACTION_LOOKUP_TRAILERS, Integer.parseInt(movieId));
+                    return null;
+                }
+                
+            }.execute();
+        } else {
+            // MovieUtils.startSyncWithWeb(getContext(), ACTION_LOOKUP_TRAILERS, Integer.parseInt(movieId));
+            trailerAdapter.swapCursor(data);
+            if (mPosition == RecyclerView.NO_POSITION) mPosition = 0;
+            trailersRecycleView.smoothScrollToPosition(mPosition);
+        }
+    }
+    //initialize the adapter,
+    //initialize the recycler,
+    //set the adapter
+    //set the recycler.
+    
+    //create a list.
+    //if movieid is not in database, then go and do another sync request (launch intent service) and then get it updated/inserted.
+    
+    
+ 
+    
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        trailerAdapter.swapCursor(null);
+    }
 }

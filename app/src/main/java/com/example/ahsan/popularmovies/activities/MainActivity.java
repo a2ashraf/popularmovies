@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity implements MovieListing.OnFr
     private FragmentTransaction fragmentTransaction;
     private String THISTAG = "ADVANCEMENT";
     private MovieListing movieListingRated;
-    
+    public static final int INVALID_VALUE = -1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity implements MovieListing.OnFr
         }
         
         //this will go and sync the local database.
-        MovieUtils.initialize(this);
+        MovieUtils.initialize(this,MovieUtils.ACTION_LOOKUP_MOVIES,INVALID_VALUE);
         RemoteMoviesAPI.getInstance().getConfiguration(null).enqueue(new Callback<Configuration>() {
             
             
@@ -75,6 +75,24 @@ public class MainActivity extends AppCompatActivity implements MovieListing.OnFr
         }
     }
     
+    
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+    
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
+    
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
+    
+    
+    
     @Override
     public void onFragmentInteraction(Bundle bundle) {
         Logger.d("ButtonClicked");
@@ -103,8 +121,8 @@ public class MainActivity extends AppCompatActivity implements MovieListing.OnFr
     public void setImageOptions(Images imageOptions) {
     
         if (imageOptions != null) {
-            MoviePreferences.setBackdropSize(this, imageOptions.backdropSizes.get(3));
-            MoviePreferences.setImageBaseURL(this, imageOptions.secureBaseUrl);
+            MoviePreferences.setBackdropSize(this.getApplicationContext(), imageOptions.backdropSizes.get(3));
+            MoviePreferences.setImageBaseURL(this.getApplicationContext(), imageOptions.secureBaseUrl);
         }
         this.imageOptions = imageOptions;
     }

@@ -31,6 +31,7 @@ public class MovieContract {
         public static final String PATH= "popular";
         public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH).build();
         public static final String TABLE_NAME = "popularmovies";
+        
     }
     
     public static final class MovieTopRated implements Movie {
@@ -44,6 +45,11 @@ public class MovieContract {
         public static final String TABLE_NAME = "moviereviews";
         public static final String PATH= "reviews";
         public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH).build();
+        public static final String COLUMN_REVIEW_CONTENT = "content";
+        public static final String COLUMN_REVIEW_AUTHOR = "author";
+        public static final String COLUMN_MOVIEID = "movieid";
+    
+    
     
     }
     
@@ -51,6 +57,10 @@ public class MovieContract {
         public static final String TABLE_NAME = "trailers";
         public static final String PATH = "trailers";
         public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH).build();
+        public static final String COLUMN_TRAILER_KEY = "trailerurl";
+        public static final String COLUMN_MOVIEID = "movieid";
+    
+    
     }
     
     

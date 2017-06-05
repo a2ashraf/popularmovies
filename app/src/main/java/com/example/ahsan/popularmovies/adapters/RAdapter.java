@@ -33,7 +33,7 @@ public class RAdapter extends RecyclerView.Adapter<RAdapter.ViewHolder> {
     
     public RAdapter(Context context, MovieListing movieListing) {
         callingFragment = movieListing;
-        ctx = context;
+        ctx = context.getApplicationContext();
         
     }
     

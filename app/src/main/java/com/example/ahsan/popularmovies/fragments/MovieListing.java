@@ -21,7 +21,7 @@ import com.example.ahsan.popularmovies.R;
 import com.example.ahsan.popularmovies.adapters.RAdapter;
 import com.example.ahsan.popularmovies.data.MovieContract;
 import com.example.ahsan.popularmovies.model.Images;
-import com.example.ahsan.popularmovies.model.Result;
+import com.example.ahsan.popularmovies.model.MovieResult;
 import com.orhanobut.logger.Logger;
 
 import org.json.JSONArray;
@@ -41,17 +41,13 @@ import static com.orhanobut.logger.Logger.d;
  * create an instance of this fragment.
  */
 
-//TODO: why is it being called twice? fetch data!
-public class MovieListing extends BaseFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+ public class MovieListing extends BaseFragment implements LoaderManager.LoaderCallbacks<Cursor> {
     
     public final static int MOVIE_TYPE_TOP_RATED = 1;
     public final static int MOVIE_TYPE_POPULAR = 0;
     public final static int MOVIE_TYPE_FAVORITES = 2;
     
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    
     private static final int ID_MOVIES_POPULAR = 1000;
     private static final int ID_MOVIES_TOPRATED = 2000;
     private static final int ID_MOVIES_FAVORITES = 3000;
@@ -62,9 +58,8 @@ public class MovieListing extends BaseFragment implements LoaderManager.LoaderCa
     String sort_by;
     private RAdapter myAdapter;
     private JSONArray arrayOfMovies;
-    private ArrayList<Result> movies;
-    // TODO: Rename and change types of parameters
-    private String mParam1;
+    private ArrayList<MovieResult> movies;
+     private String mParam1;
     private String mParam2;
     private boolean valid = false;
     private OnFragmentInteractionListener mListener;
@@ -80,8 +75,7 @@ public class MovieListing extends BaseFragment implements LoaderManager.LoaderCa
     }
     
     
-    // TODO: Rename and change types and number of parameters
-    public static MovieListing newInstance(int movieType) {
+     public static MovieListing newInstance(int movieType) {
         d(" ");
         if (sInstance == null) {
             sInstance = new MovieListing();
@@ -127,19 +121,7 @@ public class MovieListing extends BaseFragment implements LoaderManager.LoaderCa
         super.onCreate(savedInstanceState);
         stateSaver = savedInstanceState;
         setMovieType(MOVIE_TYPE_TOP_RATED);
-//        if (stateSaver != null) {
-//            if (stateSaver.getSerializable("movie_type") != null) {
-//                movieType = (int) stateSaver.getSerializable("movie_type");
-//                d("sort_by obtained from serialized state ");
-//            } else {
-//                setMovieType(MOVIE_TYPE_POPULAR);
-//                d("Default move search order if not saved");
-//            }
-//        } else {
-//            setMovieType(MOVIE_TYPE_TOP_RATED);
-//
-//            d("stateSaver was null");
-//        }
+ 
         makeRequest(false);
         
     }
@@ -194,9 +176,6 @@ public class MovieListing extends BaseFragment implements LoaderManager.LoaderCa
             //swap fragments by calling home activity to do the work
             setMovieType(MOVIE_TYPE_TOP_RATED);
             makeRequest(forceLoad);
-    
-            // item.setVisible(false);
-         //   item.
             return true;
         }
         
@@ -207,8 +186,7 @@ public class MovieListing extends BaseFragment implements LoaderManager.LoaderCa
            // item.setVisible(false);
             return true;
         }
-//
-//
+ 
         if (id == R.id.action_favorites) {
             //swap fragments by calling home activity to do the work
             setMovieType(MOVIE_TYPE_FAVORITES);
@@ -226,59 +204,13 @@ public class MovieListing extends BaseFragment implements LoaderManager.LoaderCa
         returnView.setBackgroundColor(COLOR_BLACK);
         StaggeredGridLayoutManager mLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
          recyclerView.setLayoutManager(mLayoutManager);
-        myAdapter = new RAdapter(this.getContext(),this);
+        myAdapter = new RAdapter(this.getContext().getApplicationContext(),this);
         recyclerView.setAdapter(myAdapter);
         
     }
     
-//    @Override
-//    public void onResume() {
-//
-//        super.onResume();
-////        switch (getMovieType()) {
-////            case MOVIE_TYPE_POPULAR:
-////                getActivity().setTitle(R.string.sort_popular);
-////                break;
-////            case MOVIE_TYPE_TOP_RATED:
-////                getActivity().setTitle(R.string.sort_rated);
-////                break;
-////            case MOVIE_TYPE_FAVORITES:
-////                getActivity().setTitle(R.string.favorites);
-////                break;
-////        }
-//
-//    }
+ 
 
-//
-//        RemoteMoviesAPI.getInstance().getReviews("321612",null).enqueue(new Callback<Reviews>() {
-//            @Override
-//            public void onResponse(Call<Reviews> call, Response<Reviews> response) {
-//                Logger.d(response.body().toString());
-//
-//            }
-//
-//            @Override
-//            public void onFailure(Call<Reviews> call, Throwable t) {
-//                Logger.d(t.getMessage());
-//                new Throwable(t);
-//            }
-//        });
-//
-//
-//
-//        RemoteMoviesAPI.getInstance().getVideos("321612",null).enqueue(new Callback<Videos>() {
-//            @Override
-//            public void onResponse(Call<Videos> call, Response<Videos> response) {
-//                Logger.d(response.body().toString());
-//
-//            }
-//
-//            @Override
-//            public void onFailure(Call<Videos> call, Throwable t) {
-//                Logger.d(t.getMessage());
-//                new Throwable(t);
-//            }
-//        });
 //
 //
     
@@ -340,6 +272,7 @@ public class MovieListing extends BaseFragment implements LoaderManager.LoaderCa
             
         }
         CursorLoader loader = new CursorLoader(getContext(), uri, null, null, null, null);
+        
         return loader;
         
     }

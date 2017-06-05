@@ -4,7 +4,7 @@ package com.example.ahsan.popularmovies.model;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class VideosResult {
+public class TrailerResult {
 
     @SerializedName("id")
     @Expose
