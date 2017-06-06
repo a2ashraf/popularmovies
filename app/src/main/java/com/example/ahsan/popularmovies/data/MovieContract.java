@@ -48,9 +48,6 @@ public class MovieContract {
         public static final String COLUMN_REVIEW_CONTENT = "content";
         public static final String COLUMN_REVIEW_AUTHOR = "author";
         public static final String COLUMN_MOVIEID = "movieid";
-    
-    
-    
     }
     
     public static final class MovieTrailers implements BaseColumns{

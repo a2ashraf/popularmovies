@@ -11,7 +11,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class MovieDBHelper extends SQLiteOpenHelper {
    
    private static String DB_NAME = "movies.db";
-   private static int VERSION= 4;
+   private static int VERSION= 5;
     
    
     public MovieDBHelper(Context context) {
@@ -73,8 +73,10 @@ public class MovieDBHelper extends SQLiteOpenHelper {
                 "CREATE TABLE " + MovieContract.MovieTrailers.TABLE_NAME + " (" +
                         MovieContract.MovieTrailers._ID               + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                         MovieContract.MovieTrailers.COLUMN_MOVIEID       + " INTEGER NOT NULL, "                 +
-                        MovieContract.MovieTrailers.COLUMN_TRAILER_KEY       + " REAL NOT NULL); "                 ;
-         
+                        MovieContract.MovieTrailers.COLUMN_TRAILER_KEY       + " REAL NOT NULL,  "+
+                    " UNIQUE (" +  MovieContract.MovieTrailers.COLUMN_TRAILER_KEY  + ") ON CONFLICT REPLACE);";
+    
+    
         db.execSQL(SQL_CREATE_MOVIE_REVIEWS_TABLE);
         db.execSQL(SQL_CREATE_MOVIE_TRAILERS_TABLE);
         db.execSQL(SQL_CREATE_MOVIE_TOP_RATED_TABLE);

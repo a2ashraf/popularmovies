@@ -132,7 +132,7 @@ import static com.orhanobut.logger.Logger.d;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        d(" ");
+        d("loadFlow: onCreateView MovieListing");
         setHasOptionsMenu(true);
         
         
@@ -210,9 +210,7 @@ import static com.orhanobut.logger.Logger.d;
     }
     
  
-
-//
-//
+ 
     
     public void makeRequest(boolean forceLoad) {
         

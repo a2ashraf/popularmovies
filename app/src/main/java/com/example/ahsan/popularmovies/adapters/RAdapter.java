@@ -17,6 +17,7 @@ import com.example.ahsan.popularmovies.fragments.MovieListing;
 import com.squareup.picasso.Picasso;
 
 import static com.example.ahsan.popularmovies.data.MovieContract.Movie.COLUMN_MOVIEID;
+import static com.orhanobut.logger.Logger.d;
 
 /**
  * Created by Ahsan on 2017-02-07.
@@ -34,15 +35,15 @@ public class RAdapter extends RecyclerView.Adapter<RAdapter.ViewHolder> {
     public RAdapter(Context context, MovieListing movieListing) {
         callingFragment = movieListing;
         ctx = context.getApplicationContext();
-        
+        d("loadFlow: RAdapter");
+    
     }
     
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View movieItem = LayoutInflater.from(ctx).inflate(R.layout.layout_list_view_row_items, parent, false);
         ViewHolder viewHolder = new ViewHolder(movieItem);
-        
-        return viewHolder;
+         return viewHolder;
     }
     
     

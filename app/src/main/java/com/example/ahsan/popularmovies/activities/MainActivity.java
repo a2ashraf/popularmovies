@@ -8,7 +8,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
 import com.example.ahsan.popularmovies.R;
+import com.example.ahsan.popularmovies.Utilities.BackButtonHandlerInterface;
 import com.example.ahsan.popularmovies.Utilities.MoviePreferences;
+import com.example.ahsan.popularmovies.Utilities.OnBackClickListener;
 import com.example.ahsan.popularmovies.fragments.MovieDetails;
 import com.example.ahsan.popularmovies.fragments.MovieListing;
 import com.example.ahsan.popularmovies.model.Configuration;
@@ -18,12 +20,17 @@ import com.example.ahsan.popularmovies.webservices.RemoteMoviesAPI;
 import com.facebook.stetho.Stetho;
 import com.orhanobut.logger.Logger;
 
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Iterator;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MainActivity extends AppCompatActivity implements MovieListing.OnFragmentInteractionListener {
+public class MainActivity extends AppCompatActivity implements MovieListing.OnFragmentInteractionListener, BackButtonHandlerInterface {
     
+    private ArrayList<WeakReference<OnBackClickListener>> backClickListenersList = new ArrayList<>();
     
     public Images imageOptions;
     private FragmentManager fm;
@@ -75,6 +82,42 @@ public class MainActivity extends AppCompatActivity implements MovieListing.OnFr
         }
     }
     
+    @Override
+    public void addBackClickListener(OnBackClickListener onBackClickListener) {
+        backClickListenersList.add(new WeakReference<>(onBackClickListener));
+    
+    }
+    
+    @Override
+    public void removeBackClickListener(OnBackClickListener onBackClickListener) {
+        for (Iterator<WeakReference<OnBackClickListener>> iterator = backClickListenersList.iterator();
+             iterator.hasNext();){
+            WeakReference<OnBackClickListener> weakRef = iterator.next();
+            if (weakRef.get() == onBackClickListener){
+                iterator.remove();
+            }
+        }
+    }
+    
+    private boolean fragmentsBackKeyIntercept() {
+        boolean isIntercept = false;
+        for (WeakReference<OnBackClickListener> weakRef : backClickListenersList) {
+            OnBackClickListener onBackClickListener = weakRef.get();
+            if (onBackClickListener != null) {
+                boolean isFragmIntercept = onBackClickListener.onBackClick();
+                if (!isIntercept) isIntercept = isFragmIntercept;
+            }
+        }
+        return isIntercept;
+    }
+    @Override
+    public void onBackPressed() {
+        if(!fragmentsBackKeyIntercept()){
+            super.onBackPressed();
+        }
+    }
+ 
+  
     
     @Override
     protected void onPause() {
