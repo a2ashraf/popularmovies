@@ -81,7 +81,7 @@ public class MovieSyncTask {
                         ContentValues[] freshListOfMovies = getContentValuesFromMovieReviewLookup(response);
                         if (freshListOfMovies.length != 0 && freshListOfMovies != null) {
                             //delete first?
-                            contentResolver.bulkInsert(MovieContract.MoviePopular.CONTENT_URI, freshListOfMovies);
+                            contentResolver.bulkInsert(MovieContract.MovieReview.CONTENT_URI, freshListOfMovies);
                         }
                     }
                     
@@ -158,7 +158,7 @@ public class MovieSyncTask {
         ContentValues movieReviews;
         for (int index = 0; index < reviewResultList.size(); index++) {
             movieReviews = new ContentValues();
-            movieReviews.put(MovieContract.MovieReview.COLUMN_MOVIEID, reviewResultList.get(index).id);
+            movieReviews.put(MovieContract.MovieReview.COLUMN_MOVIEID, response.body().id);
             movieReviews.put(MovieContract.MovieReview.COLUMN_REVIEW_AUTHOR, reviewResultList.get(index).author);
             movieReviews.put(MovieContract.MovieReview.COLUMN_REVIEW_CONTENT, reviewResultList.get(index).content);
             listOfReviews[index] = movieReviews;

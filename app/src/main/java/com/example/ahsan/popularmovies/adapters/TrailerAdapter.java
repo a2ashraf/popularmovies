@@ -13,7 +13,6 @@ import android.widget.ImageView;
 import com.example.ahsan.popularmovies.R;
 import com.example.ahsan.popularmovies.data.MovieContract;
 import com.orhanobut.logger.Logger;
-import com.squareup.picasso.RequestCreator;
 
 import static com.squareup.picasso.Picasso.with;
 
@@ -53,26 +52,22 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.ViewHold
     
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        currentCursor.moveToPosition(position);
-        
-        int imageColumnIndex = currentCursor.getColumnIndex(MovieContract.MovieTrailers.COLUMN_TRAILER_KEY);
-        int movieIdIndex = currentCursor.getColumnIndex(MovieContract.MovieTrailers.COLUMN_MOVIEID);
-        
-        final String imageKey = currentCursor.getString(imageColumnIndex);
-        final int movieId = Integer.parseInt(currentCursor.getString(movieIdIndex));
-        if (movieId == mId){
-            holder.setKey(imageKey);
-        }
+        if (!currentCursor.isClosed() && currentCursor.getCount()>0) {
             
-        
-        Logger.d("https://img.youtube.com/vi/" + holder.key + "/2.jpg");
-        with(ctx).load("https://img.youtube.com/vi/" + holder.key + "/2.jpg").into(holder.trailerThumbnail);
-        
-        RequestCreator picassoLoadRequest = with(ctx).load("https://img.youtube.com/vi/" + holder.key + "/1.jpg");
-        if (picassoLoadRequest != null)
-            picassoLoadRequest.into(holder.trailerThumbnail);
-        
-        
+            
+            currentCursor.moveToPosition(position);
+            
+            int imageColumnIndex = currentCursor.getColumnIndex(MovieContract.MovieTrailers.COLUMN_TRAILER_KEY);
+            int movieIdIndex = currentCursor.getColumnIndex(MovieContract.MovieTrailers.COLUMN_MOVIEID);
+            
+            final String imageKey = currentCursor.getString(imageColumnIndex);
+            final int movieId = Integer.parseInt(currentCursor.getString(movieIdIndex));
+            if (movieId == mId) {
+                holder.setKey(imageKey);
+                with(ctx).load("https://img.youtube.com/vi/" + imageKey + "/1.jpg").into(holder.trailerThumbnail);
+            }
+            Logger.d("https://img.youtube.com/vi/" + imageKey + "/2.jpg" + "        " + movieId);
+        }
     }
     
     
@@ -104,7 +99,7 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.ViewHold
         
         @Override
         public void onClick(View v) {
-//            playVideo(key);
+            playVideo(key);
         }
         
         public void playVideo(String key) {

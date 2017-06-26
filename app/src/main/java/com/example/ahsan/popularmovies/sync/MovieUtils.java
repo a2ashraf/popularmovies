@@ -29,7 +29,7 @@ public class MovieUtils {
     private static boolean trailerTable;
     
     
-    synchronized public static void initialize(@NonNull final Context context, @Nullable final int action, @Nullable final int movieid ){
+     public synchronized static void initialize(@NonNull final Context context, @Nullable final int action, @Nullable final int movieid ){
          
     /*
     * check if one of the two tables exist, if not, we attempt to update database asap.
@@ -55,7 +55,7 @@ public class MovieUtils {
                 switch(action){
                     case(ACTION_LOOKUP_REVIEWS):
                        moviesUri = MovieContract.MovieReview.CONTENT_URI;
-                          selection = MovieContract.Movie.COLUMN_MOVIEID;
+                          selection = MovieContract.Movie.COLUMN_MOVIEID+ " = ? ";
                           qualification= new String[] {String.valueOf(movieid)};
                              break;
                     case (ACTION_LOOKUP_TRAILERS):
@@ -67,7 +67,7 @@ public class MovieUtils {
                          moviesUri = MovieContract.MovieTopRated.CONTENT_URI;
                          break;
                     default:
-                        throw new UnsupportedOperationException("Unrewcognized URI:" + action);
+                        throw new UnsupportedOperationException("Unrecognized URI:" + action);
                 }
 
              
@@ -78,8 +78,8 @@ public class MovieUtils {
                 }else{
                     
                 }
+                
                 cursor.close();
-    
                 return null;
             }
         }.execute(action);

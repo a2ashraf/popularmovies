@@ -199,22 +199,15 @@ import static com.orhanobut.logger.Logger.d;
     public void setData() throws JSONException {
         
         recyclerView = (RecyclerView) returnView.findViewById(R.id.movie_recycler_view);
-        recyclerView.setBackgroundColor(COLOR_GREY);
-        recyclerView.setHasFixedSize(true);
-        returnView.setBackgroundColor(COLOR_BLACK);
+        recyclerView.setHasFixedSize(false);
         StaggeredGridLayoutManager mLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-         recyclerView.setLayoutManager(mLayoutManager);
+        recyclerView.setLayoutManager(mLayoutManager);
         myAdapter = new RAdapter(this.getContext().getApplicationContext(),this);
         recyclerView.setAdapter(myAdapter);
-        
     }
     
- 
- 
     
     public void makeRequest(boolean forceLoad) {
-        
-        
         switch (getMovieType()) {
             case MOVIE_TYPE_POPULAR:
                 getActivity().setTitle(R.string.sort_popular);
