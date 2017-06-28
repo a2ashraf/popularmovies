@@ -16,7 +16,7 @@ import com.example.ahsan.popularmovies.enums.MovieResponse;
 import com.example.ahsan.popularmovies.fragments.MovieListing;
 import com.squareup.picasso.Picasso;
 
-import static com.example.ahsan.popularmovies.data.MovieContract.Movie.COLUMN_MOVIEID;
+import static com.example.ahsan.popularmovies.data.MovieContract.MovieBase.COLUMN_MOVIEID;
 import static com.orhanobut.logger.Logger.d;
 
 /**
@@ -51,7 +51,7 @@ public class RAdapter extends RecyclerView.Adapter<RAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         currentCursor.moveToPosition(position);
-        int imageColumnIndex = currentCursor.getColumnIndex(MovieContract.Movie.COLUMN_POSTERPATH);
+        int imageColumnIndex = currentCursor.getColumnIndex(MovieContract.MovieBase.COLUMN_POSTERPATH);
         final String ImageURL = currentCursor.getString(imageColumnIndex);
         Picasso.with(ctx).load(MoviePreferences.getBaseUrl(ctx) + "/" + MoviePreferences.getBackDropSize(ctx) + ImageURL).into(holder.background);
         
@@ -89,12 +89,13 @@ public class RAdapter extends RecyclerView.Adapter<RAdapter.ViewHolder> {
         public void onClick(View v) {
             currentCursor.moveToPosition(getAdapterPosition());
             String movieId = currentCursor.getString(currentCursor.getColumnIndex(COLUMN_MOVIEID));
-            String rating = currentCursor.getString(currentCursor.getColumnIndex(MovieContract.Movie.COLUMN_VOTEAVERAGE));
-            String releasedate = currentCursor.getString(currentCursor.getColumnIndex(MovieContract.Movie.COLUMN_RELEASEDATE));
-            String posterpath = currentCursor.getString(currentCursor.getColumnIndex(MovieContract.Movie.COLUMN_POSTERPATH));
-            String overview = currentCursor.getString(currentCursor.getColumnIndex(MovieContract.Movie.COLUMN_OVERVIEW));
-            String originaltitle = currentCursor.getString(currentCursor.getColumnIndex(MovieContract.Movie.COLUMN_ORIGINALTITLE));
-            String favorite = currentCursor.getString(currentCursor.getColumnIndex(MovieContract.Movie.COLUMN_FAVORITES));
+            String rating = currentCursor.getString(currentCursor.getColumnIndex(MovieContract.MovieBase.COLUMN_VOTEAVERAGE));
+            String releasedate = currentCursor.getString(currentCursor.getColumnIndex(MovieContract.MovieBase.COLUMN_RELEASEDATE));
+            String posterpath = currentCursor.getString(currentCursor.getColumnIndex(MovieContract.MovieBase.COLUMN_POSTERPATH));
+            String overview = currentCursor.getString(currentCursor.getColumnIndex(MovieContract.MovieBase.COLUMN_OVERVIEW));
+            String originaltitle = currentCursor.getString(currentCursor.getColumnIndex(MovieContract.MovieBase.COLUMN_ORIGINALTITLE));
+            String favorite = currentCursor.getString(currentCursor.getColumnIndex(MovieContract.MovieBase.COLUMN_FAVORITES));
+//            String durationTime = currentCursor.getString(currentCursor.getColumnIndex(MovieContract.Movie.COLUMN_DURATION));
             
             Bundle b = new Bundle();
             
@@ -109,6 +110,7 @@ public class RAdapter extends RecyclerView.Adapter<RAdapter.ViewHolder> {
             b.putString(MovieResponse.OVERVIEW.name(), overview);
             
             b.putString(MovieResponse.TITLE.name(), originaltitle);
+            b.putString(MovieResponse.DURATION.name(), originaltitle);
             
             if(MoviePreferences.isInFavorites(ctx,movieId))
                 b.putBoolean(MovieResponse.FAVORITE.name(), true);

@@ -1,5 +1,6 @@
 package com.example.ahsan.popularmovies.webservices;
 
+import com.example.ahsan.popularmovies.model.AMovie;
 import com.example.ahsan.popularmovies.model.Configuration;
 import com.example.ahsan.popularmovies.model.Movies;
 import com.example.ahsan.popularmovies.model.Reviews;
@@ -29,6 +30,11 @@ public interface IRemoteMoviesAPI {
 //    @Headers(CONTENTN_JSON)
     @GET("movie/popular")
     Call<Movies> getPopular(@QueryMap Map<String, String> options);
+    
+    
+    @GET("movie/{movie_id}")
+    Call<AMovie> getMovie(@Path("movie_id") String movie_id, @QueryMap Map<String, String> options);
+    
     
     @GET("movie/{movie_id}/reviews")
     Call<Reviews> getReviews(@Path("movie_id") String movie_id, @QueryMap Map<String, String> options);

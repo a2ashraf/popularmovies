@@ -15,7 +15,7 @@ public class MovieContract {
     
     
     
-    public interface  Movie  extends BaseColumns {
+    public interface MovieBase extends BaseColumns {
         public static final String COLUMN_POSTERPATH = "posterpath";
         public static final String COLUMN_OVERVIEW = "overview";
         public static final String COLUMN_RELEASEDATE = "releasedate";
@@ -24,17 +24,25 @@ public class MovieContract {
         public static final String COLUMN_MOVIEID = "movieid";
         public static final String COLUMN_FAVORITES = "favorites";
         
-    
     }
     
-    public static final class MoviePopular implements Movie {
+    
+    public static final class Movie implements MovieBase {
+        public static final String PATH= "movie";
+        public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH).build();
+        public static final String TABLE_NAME = "amovie";
+    
+        public static String COLUMN_DURATION = "duration";
+    }
+    
+    public static final class MoviePopular implements MovieBase {
         public static final String PATH= "popular";
         public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH).build();
         public static final String TABLE_NAME = "popularmovies";
         
     }
     
-    public static final class MovieTopRated implements Movie {
+    public static final class MovieTopRated implements MovieBase {
         public static final String TABLE_NAME = "topratedmovies";
         public static final String PATH= "toprated";
         public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH).build();

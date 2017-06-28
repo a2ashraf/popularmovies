@@ -24,7 +24,7 @@ public class MovieProvider extends ContentProvider {
     private static final int CODE_REVIEWS = 300;
     private static final int CODE_TRAILERS = 400;
     private static final int CODE_MOVIES_FAVORITES = 500;
-    
+    private static final int CODE_MOVIES = 10;
     
     private static final UriMatcher sUriMatcher = buildUriMatcher();
     private MovieDBHelper movieDBHelper;
@@ -36,6 +36,7 @@ public class MovieProvider extends ContentProvider {
         matcher.addURI(MovieContract.CONTENT_AUTHORITY, MovieContract.FAVORITES_PATH, CODE_MOVIES_FAVORITES);
         matcher.addURI(MovieContract.CONTENT_AUTHORITY, MovieContract.MovieTrailers.PATH, CODE_TRAILERS);
         matcher.addURI(MovieContract.CONTENT_AUTHORITY, MovieContract.MovieReview.PATH, CODE_REVIEWS);
+        matcher.addURI(MovieContract.CONTENT_AUTHORITY, MovieContract.Movie.PATH, CODE_MOVIES);
         
         return matcher;
     }
@@ -52,7 +53,16 @@ public class MovieProvider extends ContentProvider {
     public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
         Cursor cursor;
         switch (sUriMatcher.match(uri)) {
-    
+           case CODE_MOVIES:
+                cursor = movieDBHelper.getReadableDatabase().query(
+                        MovieContract.Movie.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder);
+                break;
             case CODE_TRAILERS:
                 cursor = movieDBHelper.getReadableDatabase().query(
                         MovieContract.MovieTrailers.TABLE_NAME,
@@ -135,7 +145,33 @@ public class MovieProvider extends ContentProvider {
     @Nullable
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
-        return null;
+        final SQLiteDatabase db = movieDBHelper.getWritableDatabase();
+         switch (sUriMatcher.match(uri)) {
+             case CODE_MOVIES:
+                 db.beginTransaction();
+                 long _id;
+                 try {
+                     _id = db.insert(MovieContract.Movie.TABLE_NAME, null, values);
+                     if (_id != -1) {
+                         db.setTransactionSuccessful();
+    
+                     }
+            
+                  } finally {
+                     db.endTransaction();
+                 }
+        
+        
+                 if (_id != -1) {
+                     getContext().getContentResolver().notifyChange(uri, null);
+                 }
+        
+                 return uri;
+    
+             default:
+                 throw new UnsupportedOperationException("Unknown URI for Insert" + uri);
+    
+         }
     }
     
     @Override

@@ -1,22 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:background="@color/colorGray"
+              android:layout_height="wrap_content" xmlns:tools="http://schemas.android.com/tools"
+              android:background="@color/colorPrimaryDark"
+              android:padding="@dimen/size_10"
+              android:layout_marginTop="@dimen/size_5"
               android:orientation="vertical">
     <TextView
         android:id="@+id/review_author"
+        android:fontFamily="sans-serif-smallcaps"
+        android:textSize="@dimen/size_20"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="right"
-        android:padding="@dimen/size_5"
+        android:gravity="left"
         android:textColor="@color/colorWhite"
+        tools:text="AAAAA"
     />
     <TextView
+        android:layout_marginLeft="@dimen/size_5"
         android:id="@+id/review_content"
+        android:textAppearance="@style/TextAppearance.AppCompat.Caption"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="@dimen/size_10"
+        android:layout_marginTop="@dimen/size_10"
         android:textColor="@color/colorWhite"
+        tools:text="AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAA\n\n\nAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
     />
 </LinearLayout>

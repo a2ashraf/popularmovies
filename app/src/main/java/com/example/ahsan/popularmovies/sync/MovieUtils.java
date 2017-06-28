@@ -26,6 +26,8 @@ public class MovieUtils {
     public static final int ACTION_LOOKUP_REVIEWS = 100;
     public static final int ACTION_LOOKUP_TRAILERS = 200;
     public static final int ACTION_LOOKUP_MOVIES = 300;
+    public static final int ACTION_LOOKUP_MOVIE = 10;
+    
     private static boolean trailerTable;
     
     
@@ -55,26 +57,31 @@ public class MovieUtils {
                 switch(action){
                     case(ACTION_LOOKUP_REVIEWS):
                        moviesUri = MovieContract.MovieReview.CONTENT_URI;
-                          selection = MovieContract.Movie.COLUMN_MOVIEID+ " = ? ";
+                          selection = MovieContract.MovieBase.COLUMN_MOVIEID+ " = ? ";
                           qualification= new String[] {String.valueOf(movieid)};
                              break;
                     case (ACTION_LOOKUP_TRAILERS):
                         moviesUri = MovieContract.MovieTrailers.CONTENT_URI;
-                        selection = MovieContract.Movie.COLUMN_MOVIEID + " = ? ";
+                        selection = MovieContract.MovieBase.COLUMN_MOVIEID + " = ? ";
                           qualification= new String[] {String.valueOf(movieid)};
                          break;
                     case (ACTION_LOOKUP_MOVIES):
                          moviesUri = MovieContract.MovieTopRated.CONTENT_URI;
                          break;
+                    case (ACTION_LOOKUP_MOVIE):
+                        moviesUri = MovieContract.Movie.CONTENT_URI;
+                        selection = MovieContract.MovieBase.COLUMN_MOVIEID + " = ? ";
+                        qualification= new String[] {String.valueOf(movieid)};
+                   
+    
+                        break;
                     default:
                         throw new UnsupportedOperationException("Unrecognized URI:" + action);
                 }
 
-             
                 Cursor cursor = context.getContentResolver().query(moviesUri,columnsProjection,selection,qualification,null);
-                if (cursor == null || cursor.getCount() == 0) {
-                    startSyncWithWeb(context, action, movieid
-                    );
+                if (cursor == null || cursor.getCount() == 0  ) {
+                    startSyncWithWeb(context, action, movieid);
                 }else{
                     
                 }

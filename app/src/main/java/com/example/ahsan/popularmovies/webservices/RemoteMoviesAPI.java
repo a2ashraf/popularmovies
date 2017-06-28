@@ -1,5 +1,6 @@
 package com.example.ahsan.popularmovies.webservices;
 
+import com.example.ahsan.popularmovies.model.AMovie;
 import com.example.ahsan.popularmovies.model.Configuration;
 import com.example.ahsan.popularmovies.model.Movies;
 import com.example.ahsan.popularmovies.model.Reviews;
@@ -71,6 +72,12 @@ public class RemoteMoviesAPI implements IRemoteMoviesAPI {
     public Call<Movies> getPopular(@QueryMap Map<String, String> options) {
         options = queryParams;
         return mRemoteAPI.getPopular(options);
+    }
+    
+    @Override
+    public Call<AMovie> getMovie(@Path("movie_id") String movie_id, @QueryMap Map<String, String> options) {
+        options = queryParams;
+        return mRemoteAPI.getMovie(movie_id,options);
     }
     
     @Override

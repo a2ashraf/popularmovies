@@ -12,7 +12,8 @@ public enum MovieResponse {
     RATING("vote_average"),
     MOVIEID("movie_id"),
     FAVORITE("is_favorite"),
-    POSTERPATH("poster_path");
+    POSTERPATH("poster_path"),
+    DURATION("duration");
     
     public String value;
 

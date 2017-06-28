@@ -33,13 +33,20 @@ import com.example.ahsan.popularmovies.sync.MovieUtils;
 import com.orhanobut.logger.Logger;
 import com.squareup.picasso.Picasso;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
 import static com.example.ahsan.popularmovies.Utilities.MoviePreferences.DEFAULT_BACKDROP_SIZE;
+import static com.example.ahsan.popularmovies.sync.MovieUtils.ACTION_LOOKUP_MOVIE;
 import static com.example.ahsan.popularmovies.sync.MovieUtils.ACTION_LOOKUP_REVIEWS;
 import static com.example.ahsan.popularmovies.sync.MovieUtils.ACTION_LOOKUP_TRAILERS;
 
 public class MovieDetails extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, OnBackClickListener {
     private static final int ID_MOVIE_REVIEWS = 6000;
     private static final int ID_MOVIE_TRAILERS = 5000;
+    private static final int ID_MOVIE = 7000;
     // TODO: Rename parameter arguments, choose names that match
     
     String title = "";
@@ -47,18 +54,21 @@ public class MovieDetails extends Fragment implements LoaderManager.LoaderCallba
     String rating = "0";
     String release = "";
     String thumbnail = null;
+    String durationTime;
     RecyclerView trailersRecycleView;
     RecyclerView reviewRecycleView;
     private boolean isFavorite;
     private String movieId;
     private TrailerAdapter trailerAdapter;
-    private int mPosition = RecyclerView.NO_POSITION;
-    
+    private int mReviewPosition = RecyclerView.NO_POSITION;
+    private TextView noReview;
+    private TextView noTrailer;
+    private TextView duration;
     
     private BackButtonHandlerInterface backButtonHandler;
-    private boolean fuck;
-    private CursorLoader mainLoader;
-    private ReviewAdapter reviewAdapter;
+     private ReviewAdapter reviewAdapter;
+    private int mTrailerPosition = RecyclerView.NO_POSITION;
+    
     
     // TODO: Rename and change types and number of parameters
     public static MovieDetails newInstance(Bundle bundle) {
@@ -100,14 +110,28 @@ public class MovieDetails extends Fragment implements LoaderManager.LoaderCallba
             release = extras.getString(MovieResponse.RELEASE_DATE.name());
             isFavorite = extras.getBoolean(MovieResponse.FAVORITE.name());
             movieId = extras.getString(MovieResponse.MOVIEID.name());
-            
-             
+            release = getReleaseYear(release);
         }
         
         trailerAdapter = new TrailerAdapter(getContext(), Integer.parseInt(movieId));
-        reviewAdapter =  new ReviewAdapter(getContext(), Integer.parseInt(movieId));
+        reviewAdapter = new ReviewAdapter(getContext(), Integer.parseInt(movieId));
         //loadTrailers();
-      //  loadReviews();
+        //  loadReviews();
+    }
+    
+    private String getReleaseYear(String release) {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-mm-dd");
+        try {
+            Date date = format.parse(release);
+            Calendar releaseDate = Calendar.getInstance();
+            releaseDate.setTime(date);
+            return String.valueOf(releaseDate.get(Calendar.YEAR));
+            
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        
+        return null;
     }
     
     @Override
@@ -118,7 +142,7 @@ public class MovieDetails extends Fragment implements LoaderManager.LoaderCallba
         
         setHasOptionsMenu(false);
         View detailsView = inflater.inflate(R.layout.fragment_movie_details, container, false);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
+        LinearLayoutManager trailerlayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
         LinearLayoutManager reviewlayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
         
         reviewRecycleView = (RecyclerView) detailsView.findViewById(R.id.movie_reviews);
@@ -126,10 +150,12 @@ public class MovieDetails extends Fragment implements LoaderManager.LoaderCallba
         reviewRecycleView.setLayoutManager(reviewlayoutManager);
         reviewRecycleView.setNestedScrollingEnabled(true);
         
-    
+        noReview = (TextView) detailsView.findViewById(R.id.textView_no_review);
+        noTrailer = (TextView) detailsView.findViewById(R.id.textView_no_trailer);
+        duration = (TextView) detailsView.findViewById(R.id.textView_duration);
         trailersRecycleView = (RecyclerView) detailsView.findViewById(R.id.movie_trailers);
         trailersRecycleView.setHasFixedSize(true);
-        trailersRecycleView.setLayoutManager(layoutManager);
+        trailersRecycleView.setLayoutManager(trailerlayoutManager);
         trailersRecycleView.setAdapter(trailerAdapter);
         
         final ImageView favorites = (ImageView) detailsView.findViewById(R.id.favorites);
@@ -163,10 +189,10 @@ public class MovieDetails extends Fragment implements LoaderManager.LoaderCallba
         overview_view.setText(overview.toString());
         
         TextView rating_view = (TextView) detailsView.findViewById(R.id.rating);
-        rating_view.setText(rating_view.getText().toString() + "  " + rating);
+        rating_view.setText(rating + "/10");
         
         TextView release_view = (TextView) detailsView.findViewById(R.id.release_date);
-        release_view.setText(release_view.getText() + "  " + release.toString());
+        release_view.setText(release.toString());
         
         final ImageView background_view = (ImageView) detailsView.findViewById(R.id.background_image);
         final String finalThumbnail = MoviePreferences.getBaseUrl(getContext()) + DEFAULT_BACKDROP_SIZE + thumbnail;
@@ -194,8 +220,10 @@ public class MovieDetails extends Fragment implements LoaderManager.LoaderCallba
     public void onResume() {
         super.onResume();
         initLoader(ACTION_LOOKUP_REVIEWS);
+        initLoader(ACTION_LOOKUP_MOVIE);
         initLoader(ACTION_LOOKUP_TRAILERS);
         getActivity().getSupportLoaderManager().restartLoader(ID_MOVIE_TRAILERS, null, this);
+        getActivity().getSupportLoaderManager().restartLoader(ID_MOVIE, null, this);
         getActivity().getSupportLoaderManager().restartLoader(ID_MOVIE_REVIEWS, null, this);
     }
     
@@ -208,6 +236,10 @@ public class MovieDetails extends Fragment implements LoaderManager.LoaderCallba
     
     private synchronized void initLoader(int actionLookupReviews) {
         switch (actionLookupReviews) {
+            
+            case (ACTION_LOOKUP_MOVIE):
+                MovieUtils.initialize(getContext(), ACTION_LOOKUP_MOVIE, Integer.valueOf(movieId));
+                break;
             case (ACTION_LOOKUP_TRAILERS):
                 MovieUtils.initialize(getContext(), ACTION_LOOKUP_TRAILERS, Integer.valueOf(movieId));
                 break;
@@ -240,6 +272,12 @@ public class MovieDetails extends Fragment implements LoaderManager.LoaderCallba
         
         Uri uri = null;
         switch (id) {
+            
+            case (ID_MOVIE):
+                //return a cursor to this URI
+                uri = MovieContract.Movie.CONTENT_URI;
+                break;
+            
             case (ID_MOVIE_REVIEWS):
                 //return a cursor to this URI
                 uri = MovieContract.MovieReview.CONTENT_URI;
@@ -253,7 +291,7 @@ public class MovieDetails extends Fragment implements LoaderManager.LoaderCallba
             
             
         }
-        String selection = MovieContract.Movie.COLUMN_MOVIEID + " = ? ";
+        String selection = MovieContract.MovieBase.COLUMN_MOVIEID + " = ? ";
         String[] qualification = new String[]{String.valueOf(movieId)};
         CursorLoader loader = new CursorLoader(getContext(), uri, null, selection, qualification, null);
         
@@ -268,51 +306,106 @@ public class MovieDetails extends Fragment implements LoaderManager.LoaderCallba
             return;
         }
         
-        if(ID_MOVIE_TRAILERS == loader.getId()){
+        if (ID_MOVIE_TRAILERS == loader.getId()) {
             if (data.getCount() < 1) {
                 new AsyncTask<Void, Void, Void>() {
                     @Override
                     protected Void doInBackground(Void... params) {
                         MovieUtils.startSyncWithWeb(getContext(), ACTION_LOOKUP_TRAILERS, Integer.parseInt(movieId));
+    
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                showTrailerMessage();
+                            }
+                        });
                         return null;
                     }
-            
                 }.execute();
-            } else {
+            } else if (data.getCount() > 0) {
+                showTrailers();
                 trailerAdapter.swapCursor(data);
                 trailerAdapter.setmId(Integer.parseInt(movieId));
-        
-                if (mPosition == RecyclerView.NO_POSITION) mPosition = 0;
-        
-                if (trailersRecycleView != null) trailersRecycleView.smoothScrollToPosition(mPosition);
+                
+                if (mTrailerPosition == RecyclerView.NO_POSITION) mTrailerPosition = 0;
+                
+                if (trailersRecycleView != null) {
+                    trailersRecycleView.smoothScrollToPosition(mTrailerPosition);
+                }
             }
-        }else if(ID_MOVIE_REVIEWS == loader.getId()){
+        } else if (ID_MOVIE == loader.getId()) {
+            if (data.getCount() < 1) {
+                new AsyncTask<Void, Void, Void>() {
+                    @Override
+                    protected Void doInBackground(Void... params) {
+                        MovieUtils.startSyncWithWeb(getContext(), ACTION_LOOKUP_MOVIE, Integer.parseInt(movieId));
+                        return null;
+                    }
+                    
+                }.execute();
+            } else if (data.getCount() > 0) {
+                data.moveToFirst();
+                int durationColumnIndex = data.getColumnIndex(MovieContract.Movie.COLUMN_DURATION);
+                final String durationValue = data.getString(durationColumnIndex);
+                duration.setText(durationValue + " min");
+                
+            }
+        } else if (ID_MOVIE_REVIEWS == loader.getId()) {
             if (data.getCount() < 1) {
                 new AsyncTask<Void, Void, Void>() {
                     @Override
                     protected Void doInBackground(Void... params) {
                         MovieUtils.startSyncWithWeb(getContext(), ACTION_LOOKUP_REVIEWS, Integer.parseInt(movieId));
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                showReviewDisplayMessage();
+                            }
+                        });
+
+                        
                         return null;
                     }
-            
                 }.execute();
-            } else {
-                reviewAdapter.setmId(Integer.parseInt(movieId));
-                reviewAdapter.swapCursor(data);
-                if (mPosition == RecyclerView.NO_POSITION) mPosition = 0;
-        
-                if (reviewRecycleView!= null)
-                    reviewRecycleView.smoothScrollToPosition(mPosition);
-            }
+            } else if (data.getCount() > 0)
+                showReviews();
+            reviewAdapter.setmId(Integer.parseInt(movieId));
+            reviewAdapter.swapCursor(data);
+            if (mReviewPosition == RecyclerView.NO_POSITION) mReviewPosition = 0;
+            
+            if (reviewRecycleView != null)
+                reviewRecycleView.smoothScrollToPosition(mReviewPosition);
+            
+            
         }
-   
         
         
     }
     
+    private void showTrailerMessage() {
+        trailersRecycleView.setVisibility(View.GONE);
+        noTrailer.setVisibility(View.VISIBLE);
+    }
+    
+    public void showTrailers() {
+        trailersRecycleView.setVisibility(View.VISIBLE);
+        noTrailer.setVisibility(View.INVISIBLE);
+    }
+    
+    
+    private void showReviewDisplayMessage() {
+        reviewRecycleView.setVisibility(View.GONE);
+        noReview.setVisibility(View.VISIBLE);
+    }
+    
+    public void showReviews() {
+        reviewRecycleView.setVisibility(View.VISIBLE);
+        noReview.setVisibility(View.INVISIBLE);
+    }
     
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         trailerAdapter.swapCursor(null);
+        reviewAdapter.swapCursor(null);
     }
 }

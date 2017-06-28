@@ -16,6 +16,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.example.ahsan.popularmovies.R;
 import com.example.ahsan.popularmovies.adapters.RAdapter;
@@ -270,7 +271,9 @@ import static com.orhanobut.logger.Logger.d;
     
     @Override
     public void onLoadFinished(Loader loader, Cursor data) {
-        
+        if(data.getCount()==0 && data.getNotificationUri().getLastPathSegment().equals("favorites")){
+            Toast.makeText(getActivity(), "NO MOVIES TO DISPLAY\n Please favorite a movie by clicking the Heart", Toast.LENGTH_LONG).show();
+        }
         
         if (adapterPosition == RecyclerView.NO_POSITION)
             adapterPosition = 0;
