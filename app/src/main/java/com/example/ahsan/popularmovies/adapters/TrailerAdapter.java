@@ -11,8 +11,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.example.ahsan.popularmovies.R;
-import com.example.ahsan.popularmovies.data.MovieContract;
-import com.orhanobut.logger.Logger;
+import com.example.ahsan.popularmovies.model.details.Videos;
 
 import static com.squareup.picasso.Picasso.with;
 
@@ -25,18 +24,14 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.ViewHold
     private int mId;
     private Cursor currentCursor;
     private Context ctx;
-    
+    private Videos videos;
     public TrailerAdapter(Context context, int movieid) {
-        mId = movieid;
         ctx = context;
     }
+
     
-    public void setmId(int mId) {
-        this.mId = mId;
-    }
-    
-    public void swapCursor(Cursor newCursor) {
-        currentCursor = newCursor;
+    public void setData(Videos trailervideos){
+        videos = trailervideos;
         notifyDataSetChanged();
     }
     
@@ -52,33 +47,19 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.ViewHold
     
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        if (!currentCursor.isClosed() && currentCursor.getCount()>0) {
-            
-            
-            currentCursor.moveToPosition(position);
-            
-            int imageColumnIndex = currentCursor.getColumnIndex(MovieContract.MovieTrailers.COLUMN_TRAILER_KEY);
-            int movieIdIndex = currentCursor.getColumnIndex(MovieContract.MovieTrailers.COLUMN_MOVIEID);
-            
-            final String imageKey = currentCursor.getString(imageColumnIndex);
-            final int movieId = Integer.parseInt(currentCursor.getString(movieIdIndex));
-            if (movieId == mId) {
-                holder.setKey(imageKey);
+
+        if (videos != null && videos.getResults().size() > 0) {
+            final String imageKey = videos.getResults().get(position).getKey();
                 with(ctx).load("https://img.youtube.com/vi/" + imageKey + "/1.jpg").into(holder.trailerThumbnail);
-            }
-            Logger.d("https://img.youtube.com/vi/" + imageKey + "/2.jpg" + "        " + movieId);
         }
     }
     
-    
     @Override
     public int getItemCount() {
-        
-        
-        if (null == currentCursor)
+        if(videos==null)
             return 0;
         
-        return currentCursor.getCount();
+        return videos.getResults().size();
     }
     
     

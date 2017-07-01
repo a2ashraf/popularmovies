@@ -9,9 +9,7 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.example.ahsan.popularmovies.Utilities.MoviePreferences;
-
-import java.util.Iterator;
+import com.example.ahsan.popularmovies.fragments.MovieListing;
 
 /**
  * Created by Ahsan on 2017-05-29.
@@ -27,6 +25,7 @@ public class MovieProvider extends ContentProvider {
     private static final int CODE_MOVIES = 10;
     
     private static final UriMatcher sUriMatcher = buildUriMatcher();
+    private static final int CODE_MOVIES_ALL = 20;
     private MovieDBHelper movieDBHelper;
     
     private static UriMatcher buildUriMatcher() {
@@ -34,9 +33,10 @@ public class MovieProvider extends ContentProvider {
         matcher.addURI(MovieContract.CONTENT_AUTHORITY, MovieContract.MovieTopRated.PATH, CODE_MOVIES_TOPRATED);
         matcher.addURI(MovieContract.CONTENT_AUTHORITY, MovieContract.MoviePopular.PATH, CODE_MOVIES_POPULAR);
         matcher.addURI(MovieContract.CONTENT_AUTHORITY, MovieContract.FAVORITES_PATH, CODE_MOVIES_FAVORITES);
-        matcher.addURI(MovieContract.CONTENT_AUTHORITY, MovieContract.MovieTrailers.PATH, CODE_TRAILERS);
-        matcher.addURI(MovieContract.CONTENT_AUTHORITY, MovieContract.MovieReview.PATH, CODE_REVIEWS);
+//        matcher.addURI(MovieContract.CONTENT_AUTHORITY, MovieContract.MovieTrailers.PATH, CODE_TRAILERS);
+//        matcher.addURI(MovieContract.CONTENT_AUTHORITY, MovieContract.MovieReview.PATH, CODE_REVIEWS);
         matcher.addURI(MovieContract.CONTENT_AUTHORITY, MovieContract.Movie.PATH, CODE_MOVIES);
+//        matcher.addURI(MovieContract.CONTENT_AUTHORITY, MovieContract.Movie.PATH, CODE_MOVIES);
         
         return matcher;
     }
@@ -53,7 +53,19 @@ public class MovieProvider extends ContentProvider {
     public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
         Cursor cursor;
         switch (sUriMatcher.match(uri)) {
-           case CODE_MOVIES:
+            case (CODE_MOVIES):
+                cursor = movieDBHelper.getReadableDatabase().rawQuery("select * from (\n" +
+                        "SELECT * FROM popularmovies\n" +
+                        "UNION\n" +
+                        "SELECT * FROM topratedmovies\n" +
+                        ") t1 INNER JOIN  trailers ON t1.movieid = trailers.movieid\n" +
+                        "INNER JOIN  moviereviews ON t1.movieid = moviereviews.movieid\n" +
+                        "where t1.movieid = ?\n",selectionArgs
+                        , null);
+                
+            break;
+            
+           case CODE_MOVIES_ALL:
                 cursor = movieDBHelper.getReadableDatabase().query(
                         MovieContract.Movie.TABLE_NAME,
                         projection,
@@ -105,23 +117,17 @@ public class MovieProvider extends ContentProvider {
                 break;
             case CODE_MOVIES_FAVORITES:
                 //using query builder http://blog.cubeactive.com/android-creating-a-join-with-sqlite/
-                Iterator<String> favIterator =  MoviePreferences.getFavoritesSet(getContext()).iterator();
+//                Iterator<String> favIterator =  MoviePreferences.getFavoritesSet(getContext()).iterator();
                 String query = "";
                 String sqltablepopular = null;
                 String sqltabletoprated = null;
                 
-                String favoriteMovieId = null;
-                StringBuilder listIDs = new StringBuilder(query);
-                 while (favIterator.hasNext()) {
-                    favoriteMovieId = favIterator.next();
-                     listIDs.append(favoriteMovieId);
-                    if (favIterator.hasNext())
-                        listIDs.append(",");
-                }
+               
                 sqltablepopular = "Select * from " + MovieContract.MoviePopular.TABLE_NAME + " where " +
-                        MovieContract.MoviePopular.TABLE_NAME + "." + MovieContract.MoviePopular.COLUMN_MOVIEID + " IN(" + listIDs + ")";
+                        MovieContract.MoviePopular.TABLE_NAME + "." + MovieContract.MoviePopular.COLUMN_FAVORITES + ">0";
+                
                 sqltabletoprated = "Select * from " + MovieContract.MovieTopRated.TABLE_NAME + " where " +
-                        MovieContract.MovieTopRated.TABLE_NAME + "." + MovieContract.MovieTopRated.COLUMN_MOVIEID + " IN(" + listIDs + ")";
+                        MovieContract.MovieTopRated.TABLE_NAME + "." + MovieContract.MovieTopRated.COLUMN_FAVORITES + ">0";
                 if (sqltablepopular == null) {
                     return null;
                 }
@@ -270,6 +276,39 @@ public class MovieProvider extends ContentProvider {
     
     @Override
     public int update(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
-        return 0;
+        final SQLiteDatabase db = movieDBHelper.getWritableDatabase();
+        int rowsInserted = 0;
+        switch (sUriMatcher.match(uri)) {
+            case CODE_MOVIES_FAVORITES:
+                db.beginTransaction();
+                try {
+                    if( (int) values.get("MOVIE_TYPE") == MovieListing.MOVIE_TYPE_POPULAR){
+                        values.remove("MOVIE_TYPE");
+                        long _id = db.update(MovieContract.MoviePopular.TABLE_NAME, values,selection,selectionArgs);
+                        if (_id != -1) {
+                            rowsInserted++;
+                        }
+    
+                    }else if( (int) values.get("MOVIE_TYPE") == MovieListing.MOVIE_TYPE_TOP_RATED){
+                        values.remove("MOVIE_TYPE");
+                        long _id = db.update(MovieContract.MovieTopRated.TABLE_NAME, values,selection,selectionArgs);
+                        if (_id != -1) {
+                            rowsInserted++;
+                        }
+    
+                    }
+                    db.setTransactionSuccessful();
+                        
+                } finally {
+                    db.endTransaction();
+                }
+    
+                if (rowsInserted > 0) {
+                    getContext().getContentResolver().notifyChange(uri, null);
+                }
+    
+                
+        }
+        return rowsInserted;
     }
 }

@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.ahsan.popularmovies.R;
-import com.example.ahsan.popularmovies.data.MovieContract;
+import com.example.ahsan.popularmovies.model.details.Reviews;
 
 /**
  * Created by Ahsan on 2017-06-02.
@@ -20,19 +20,10 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
     private int mId;
     private Cursor currentCursor;
     private Context ctx;
+    private Reviews reviews;
     
     public ReviewAdapter(Context context, int movieid) {
-        mId = movieid;
         ctx = context;
-    }
-    
-    public void setmId(int mId) {
-        this.mId = mId;
-    }
-    
-    public void swapCursor(Cursor newCursor) {
-        currentCursor = newCursor;
-        notifyDataSetChanged();
     }
     
     @Override
@@ -45,30 +36,29 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
     
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        if (!currentCursor.isClosed()) {
-            currentCursor.moveToPosition(position);
-            int authorIndex = currentCursor.getColumnIndex(MovieContract.MovieReview.COLUMN_REVIEW_AUTHOR);
-            int contentIndex = currentCursor.getColumnIndex(MovieContract.MovieReview.COLUMN_REVIEW_CONTENT);
-            int movieIdIndex = currentCursor.getColumnIndex(MovieContract.MovieReview.COLUMN_MOVIEID);
+        if (null!=reviews && reviews.getReviewResults().size()>0) {
             
-            final String author_name = currentCursor.getString(authorIndex);
-            final String author_content = currentCursor.getString(contentIndex);
-            final int movieId = Integer.parseInt(currentCursor.getString(movieIdIndex));
-            if (movieId == mId) {
-                holder.reviewAuthor.setText(author_name);
-                holder.reviewContent.setText(author_content);
-            }
+             
+            final String author_name = reviews.getReviewResults().get(position).getAuthor();
+            final String author_content = reviews.getReviewResults().get(position).getContent();
+            holder.reviewAuthor.setText(author_name);
+            holder.reviewContent.setText(author_content);
         }
     }
     @Override
     public int getItemCount() {
   
-        if (null == currentCursor)
+        if (null == reviews)
             return 0;
-        
-        return currentCursor.getCount();
+    
+        return reviews.getReviewResults().size();
     }
-
+    
+    public void setData(Reviews movieReviews) {
+        reviews = movieReviews;
+        notifyDataSetChanged();
+    }
+    
     public class ViewHolder extends RecyclerView.ViewHolder  {
         
     

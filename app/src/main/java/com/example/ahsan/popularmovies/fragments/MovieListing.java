@@ -66,6 +66,7 @@ import static com.orhanobut.logger.Logger.d;
     private OnFragmentInteractionListener mListener;
     private View returnView;
     private int movieType;
+    private static int tableSource;
     private int adapterPosition = RecyclerView.NO_POSITION;
     private int COLOR_BLACK;
     private int COLOR_GREY;
@@ -82,9 +83,12 @@ import static com.orhanobut.logger.Logger.d;
             sInstance = new MovieListing();
             switch (movieType) {
                 case MOVIE_TYPE_POPULAR:
+                    tableSource =    MOVIE_TYPE_POPULAR;
                     sInstance.setMovieType(MOVIE_TYPE_POPULAR);
                     return sInstance;
                 case MOVIE_TYPE_TOP_RATED:
+                    tableSource =    MOVIE_TYPE_TOP_RATED;
+    
                     sInstance.setMovieType(MOVIE_TYPE_TOP_RATED);
                     return sInstance;
                 case MOVIE_TYPE_FAVORITES:
@@ -99,6 +103,7 @@ import static com.orhanobut.logger.Logger.d;
     public void onButtonPressed(Bundle bundle) {
         d("Pressing the button");
         if (mListener != null) {
+            bundle.putInt("MOVIE_TYPE",sInstance.tableSource);
             mListener.onFragmentInteraction(bundle);
         }
     }
@@ -164,40 +169,36 @@ import static com.orhanobut.logger.Logger.d;
         Logger.t(5).d("Should only be once right? MENU");
         menu.clear();
         inflater.inflate(R.menu.sort, menu);
-        //   super.onCreateOptionsMenu(menu, inflater);
-    }
+     }
     
-    //base
-    @Override
+     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         forceLoad=true;
-         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_top_rated) {
-            //swap fragments by calling home activity to do the work
-            setMovieType(MOVIE_TYPE_TOP_RATED);
+         if (id == R.id.action_top_rated) {
+             tableSource =    MOVIE_TYPE_TOP_RATED;
+    
+             setMovieType(MOVIE_TYPE_TOP_RATED);
             makeRequest(forceLoad);
             return true;
         }
         
         if (id == R.id.action_popularity) {
-            //swap fragments by calling home activity to do the work
-            setMovieType(MOVIE_TYPE_POPULAR);
+            tableSource =    MOVIE_TYPE_POPULAR;
+
+             setMovieType(MOVIE_TYPE_POPULAR);
             makeRequest(forceLoad);
-           // item.setVisible(false);
-            return true;
+             return true;
         }
  
         if (id == R.id.action_favorites) {
-            //swap fragments by calling home activity to do the work
             setMovieType(MOVIE_TYPE_FAVORITES);
             makeRequest(forceLoad);
         }
         return false;
     }
     
-    //maybe abstract it.
-    public void setData() throws JSONException {
+     public void setData() throws JSONException {
         
         recyclerView = (RecyclerView) returnView.findViewById(R.id.movie_recycler_view);
         recyclerView.setHasFixedSize(false);
@@ -257,6 +258,8 @@ import static com.orhanobut.logger.Logger.d;
                 break;
             case (ID_MOVIES_FAVORITES):
                 uri = MovieContract.FAVORITES_URI;
+//                String selection = " = ?";
+//                String[] selectionargs = new String[]{""};
                 break;
             default:
                 throw new RuntimeException("Loader Not Implemented: " + id);
@@ -271,7 +274,7 @@ import static com.orhanobut.logger.Logger.d;
     
     @Override
     public void onLoadFinished(Loader loader, Cursor data) {
-        if(data.getCount()==0 && data.getNotificationUri().getLastPathSegment().equals("favorites")){
+        if(data.getCount()==0 && data.getNotificationUri().getLastPathSegment().equals("favorites") && getActivity()!=null){
             Toast.makeText(getActivity(), "NO MOVIES TO DISPLAY\n Please favorite a movie by clicking the Heart", Toast.LENGTH_LONG).show();
         }
         
@@ -293,19 +296,7 @@ import static com.orhanobut.logger.Logger.d;
     public void onLoaderReset(Loader loader) {
         myAdapter.swapCursor(null);
     }
-    
-  
-    
-    
-    /* This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
+   
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Bundle bundle);

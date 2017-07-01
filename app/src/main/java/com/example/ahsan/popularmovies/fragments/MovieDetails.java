@@ -1,15 +1,10 @@
 package com.example.ahsan.popularmovies.fragments;
 
+import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
 import android.graphics.Point;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Display;
@@ -28,8 +23,11 @@ import com.example.ahsan.popularmovies.Utilities.OnBackClickListener;
 import com.example.ahsan.popularmovies.adapters.ReviewAdapter;
 import com.example.ahsan.popularmovies.adapters.TrailerAdapter;
 import com.example.ahsan.popularmovies.data.MovieContract;
+import com.example.ahsan.popularmovies.data.MovieDBHelper;
 import com.example.ahsan.popularmovies.enums.MovieResponse;
-import com.example.ahsan.popularmovies.sync.MovieUtils;
+import com.example.ahsan.popularmovies.model.details.Reviews;
+import com.example.ahsan.popularmovies.model.details.Videos;
+import com.example.ahsan.popularmovies.webservices.RemoteMoviesAPI;
 import com.orhanobut.logger.Logger;
 import com.squareup.picasso.Picasso;
 
@@ -37,16 +35,21 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import static com.example.ahsan.popularmovies.Utilities.MoviePreferences.DEFAULT_BACKDROP_SIZE;
-import static com.example.ahsan.popularmovies.sync.MovieUtils.ACTION_LOOKUP_MOVIE;
-import static com.example.ahsan.popularmovies.sync.MovieUtils.ACTION_LOOKUP_REVIEWS;
-import static com.example.ahsan.popularmovies.sync.MovieUtils.ACTION_LOOKUP_TRAILERS;
+import static com.example.ahsan.popularmovies.enums.MovieResponse.POSTERPATH;
 
-public class MovieDetails extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, OnBackClickListener {
+public class MovieDetails extends Fragment implements  OnBackClickListener {
     private static final int ID_MOVIE_REVIEWS = 6000;
     private static final int ID_MOVIE_TRAILERS = 5000;
     private static final int ID_MOVIE = 7000;
+    private static final int ID_MOVIE_ALL = 8000;
+    private static MovieDetails sInstance;
     // TODO: Rename parameter arguments, choose names that match
     
     String title = "";
@@ -57,7 +60,7 @@ public class MovieDetails extends Fragment implements LoaderManager.LoaderCallba
     String durationTime;
     RecyclerView trailersRecycleView;
     RecyclerView reviewRecycleView;
-    private boolean isFavorite;
+    private boolean isFavorite = false;
     private String movieId;
     private TrailerAdapter trailerAdapter;
     private int mReviewPosition = RecyclerView.NO_POSITION;
@@ -66,60 +69,74 @@ public class MovieDetails extends Fragment implements LoaderManager.LoaderCallba
     private TextView duration;
     
     private BackButtonHandlerInterface backButtonHandler;
-     private ReviewAdapter reviewAdapter;
+    private ReviewAdapter reviewAdapter;
     private int mTrailerPosition = RecyclerView.NO_POSITION;
+    private OnFragmentInteractionListener mListener;
+    private int movieType;
     
     
     // TODO: Rename and change types and number of parameters
     public static MovieDetails newInstance(Bundle bundle) {
-        MovieDetails fragment = new MovieDetails();
-        Logger.d("loadFlow OncreateView - MovieDetails");
-        
         Bundle args = new Bundle();
+        MovieDetails fragment;
+        if (sInstance != null) {
+            fragment = sInstance;
+        } else {
+            fragment = new MovieDetails();
+        }
+        
         if (bundle != null) {
             args.putAll(bundle);
             fragment.setArguments(args);
-            return fragment;
         }
-        return null;
-        
+        return fragment;
     }
+    
     
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         backButtonHandler = (BackButtonHandlerInterface) context;
         backButtonHandler.addBackClickListener(this);
+        if (context instanceof OnFragmentInteractionListener) {
+            mListener = (OnFragmentInteractionListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnFragmentInteractionListener");
+        }
     }
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Bundle extras;
-        if (savedInstanceState != null)
+        if (savedInstanceState != null) {
             extras = savedInstanceState;
-        else
+        } else {
             extras = this.getArguments();
-        
-        
+        }
         if (extras != null) {
+            
+            movieType = extras.getInt(MovieDBHelper.COLUMN_TABLE_NAME);
             title = extras.getString(MovieResponse.TITLE.name());
             overview = extras.getString(MovieResponse.OVERVIEW.name());
             rating = extras.getString(MovieResponse.RATING.name());
-            thumbnail = extras.getString(MovieResponse.POSTERPATH.name());
+            thumbnail = extras.getString(POSTERPATH.name());
             release = extras.getString(MovieResponse.RELEASE_DATE.name());
-            isFavorite = extras.getBoolean(MovieResponse.FAVORITE.name());
+            isFavorite = extras.getInt(MovieResponse.FAVORITE.name())==1;
             movieId = extras.getString(MovieResponse.MOVIEID.name());
-            release = getReleaseYear(release);
+            String releaseYear = getReleaseYear(release);
+            release = releaseYear;
         }
-        
         trailerAdapter = new TrailerAdapter(getContext(), Integer.parseInt(movieId));
         reviewAdapter = new ReviewAdapter(getContext(), Integer.parseInt(movieId));
-        //loadTrailers();
-        //  loadReviews();
+        
     }
     
     private String getReleaseYear(String release) {
+        if (release.length() == 4)
+            return release;
+        
         SimpleDateFormat format = new SimpleDateFormat("yyyy-mm-dd");
         try {
             Date date = format.parse(release);
@@ -164,23 +181,29 @@ public class MovieDetails extends Fragment implements LoaderManager.LoaderCallba
         } else {
             favorites.setBackground(getResources().getDrawable(R.drawable.ic_favorite_border_white_24dp));
         }
-        
+    
+    
+    
         favorites.setOnClickListener(new View.OnClickListener() {
+            int counter=0;
             @Override
             public void onClick(View v) {
-                if (!isFavorite) {
+                isFavorite = !isFavorite;
+                ContentValues values = new ContentValues();
+                Logger.d("PRINTOUT ON CLICK!!-> COUNTER: " + counter++);
+                values.put(MovieContract.MovieBase.COLUMN_FAVORITES, isFavorite == true ? 1:0);
+                values.put("MOVIE_TYPE",movieType);
+                 getActivity().getContentResolver().update(MovieContract.FAVORITES_URI, values, "movieid = ?", new String[]{movieId});
+//                getContext().getContentResolver().notifyChange(MovieContract.FAVORITES_URI, null);
+    
+                if(isFavorite){
                     favorites.setBackground(getResources().getDrawable(R.drawable.ic_favorite_white_24dp));
                     Toast.makeText(getContext(), "Saved!", Toast.LENGTH_SHORT).show();
-                    MoviePreferences.addToFavorites(getContext().getApplicationContext(), movieId);
-                    
-                } else {
+                }else{
                     favorites.setBackground(getResources().getDrawable(R.drawable.ic_favorite_border_white_24dp));
-                    MoviePreferences.removeFromFavorites(getContext().getApplicationContext(), movieId);
                     Toast.makeText(getContext(), "Unsaved", Toast.LENGTH_SHORT).show();
                 }
-                isFavorite = !isFavorite;
-                getContext().getContentResolver().notifyChange(MovieContract.FAVORITES_URI, null);
-            }
+             }
             
         });
         TextView title_view = (TextView) detailsView.findViewById(R.id.title_of_movie);
@@ -219,167 +242,77 @@ public class MovieDetails extends Fragment implements LoaderManager.LoaderCallba
     @Override
     public void onResume() {
         super.onResume();
-        initLoader(ACTION_LOOKUP_REVIEWS);
-        initLoader(ACTION_LOOKUP_MOVIE);
-        initLoader(ACTION_LOOKUP_TRAILERS);
-        getActivity().getSupportLoaderManager().restartLoader(ID_MOVIE_TRAILERS, null, this);
-        getActivity().getSupportLoaderManager().restartLoader(ID_MOVIE, null, this);
-        getActivity().getSupportLoaderManager().restartLoader(ID_MOVIE_REVIEWS, null, this);
+        
+        HashMap<String, String> map = new HashMap<>();
+        map.put("append_to_response", "reviews,videos");
+        RemoteMoviesAPI.getInstance().getMovie(String.valueOf(movieId), map).enqueue(new Callback<com.example.ahsan.popularmovies.model.details.MovieDetails>() {
+            @Override
+            public void onResponse(Call<com.example.ahsan.popularmovies.model.details.MovieDetails> call, Response<com.example.ahsan.popularmovies.model.details.MovieDetails> response) {
+                
+                if (response != null && response.body() != null) {
+                    Videos trailerVideos = response.body().getVideos();
+                    Reviews movieReviews = response.body().getReviews();
+                    if (trailerVideos.getResults().size() > 0){
+                        showTrailers();
+                        trailerAdapter.setData(trailerVideos);
+                        trailersRecycleView.setAdapter(trailerAdapter);
+                    }
+                    else{
+    
+                        showTrailerMessage();
+                    }
+                    
+                    if (movieReviews.getReviewResults().size() > 0) {
+                        showReviews();
+                        reviewAdapter.setData(movieReviews);
+                        reviewRecycleView.setAdapter(reviewAdapter);
+                    }
+                    else {
+                        showReviewDisplayMessage();
+    
+                    }
+    
+ 
+                }
+            }
+            
+            @Override
+            public void onFailure(Call<com.example.ahsan.popularmovies.model.details.MovieDetails> call, Throwable t) {
+                
+                Logger.d(t.getMessage());
+                new Throwable(t);
+            }
+            
+        });
+ 
+    }
+    
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        
+        if (outState != null) {
+            outState.putString(MovieResponse.TITLE.name(), title);
+            outState.putString(MovieResponse.OVERVIEW.name(), overview);
+            outState.putString(MovieResponse.RATING.name(), rating);
+            outState.putString(MovieResponse.THUMBNAIL.name(), thumbnail);
+            outState.putString(MovieResponse.RELEASE_DATE.name(), release);
+            outState.putInt(MovieResponse.FAVORITE.name(), isFavorite == true ? 1:0);
+            outState.putString(MovieResponse.MOVIEID.name(), movieId);
+            outState.putString(MovieResponse.DURATION.name(), durationTime);
+            outState.putInt(MovieDBHelper.COLUMN_TABLE_NAME, movieType);
+            
+        }
+        
+        
     }
     
     @Override
     public void onDetach() {
         super.onDetach();
+        mListener = null;
         backButtonHandler.removeBackClickListener(this);
         backButtonHandler = null;
-    }
-    
-    private synchronized void initLoader(int actionLookupReviews) {
-        switch (actionLookupReviews) {
-            
-            case (ACTION_LOOKUP_MOVIE):
-                MovieUtils.initialize(getContext(), ACTION_LOOKUP_MOVIE, Integer.valueOf(movieId));
-                break;
-            case (ACTION_LOOKUP_TRAILERS):
-                MovieUtils.initialize(getContext(), ACTION_LOOKUP_TRAILERS, Integer.valueOf(movieId));
-                break;
-            case (ACTION_LOOKUP_REVIEWS):
-                MovieUtils.initialize(getContext(), ACTION_LOOKUP_REVIEWS, Integer.valueOf(movieId));
-                break;
-            default:
-                throw new UnsupportedOperationException("Unrecognized action: " + actionLookupReviews);
-        }
-    }
-    
-    private void loadTrailers() {
-        getActivity().getSupportLoaderManager().initLoader(ID_MOVIE_TRAILERS, null, this);
-        
-    }
-    
-    private void loadReviews() {
-        getActivity().getSupportLoaderManager().initLoader(ID_MOVIE_REVIEWS, null, this);
-    }
-    
-    @Override
-    public boolean onBackClick() {
-        return false;
-    }
-    
-    //put in adapter to play movie.
-    
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        
-        Uri uri = null;
-        switch (id) {
-            
-            case (ID_MOVIE):
-                //return a cursor to this URI
-                uri = MovieContract.Movie.CONTENT_URI;
-                break;
-            
-            case (ID_MOVIE_REVIEWS):
-                //return a cursor to this URI
-                uri = MovieContract.MovieReview.CONTENT_URI;
-                break;
-            case (ID_MOVIE_TRAILERS):
-                //return a cursor to this URI
-                uri = MovieContract.MovieTrailers.CONTENT_URI;
-                break;
-            default:
-                throw new RuntimeException("Loader Not Implemented: " + id);
-            
-            
-        }
-        String selection = MovieContract.MovieBase.COLUMN_MOVIEID + " = ? ";
-        String[] qualification = new String[]{String.valueOf(movieId)};
-        CursorLoader loader = new CursorLoader(getContext(), uri, null, selection, qualification, null);
-        
-        return loader;
-    }
-    
-    
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        //get loader id/type and then based on that load the reviews/sync reviews etc
-        if (data == null) {
-            return;
-        }
-        
-        if (ID_MOVIE_TRAILERS == loader.getId()) {
-            if (data.getCount() < 1) {
-                new AsyncTask<Void, Void, Void>() {
-                    @Override
-                    protected Void doInBackground(Void... params) {
-                        MovieUtils.startSyncWithWeb(getContext(), ACTION_LOOKUP_TRAILERS, Integer.parseInt(movieId));
-    
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                showTrailerMessage();
-                            }
-                        });
-                        return null;
-                    }
-                }.execute();
-            } else if (data.getCount() > 0) {
-                showTrailers();
-                trailerAdapter.swapCursor(data);
-                trailerAdapter.setmId(Integer.parseInt(movieId));
-                
-                if (mTrailerPosition == RecyclerView.NO_POSITION) mTrailerPosition = 0;
-                
-                if (trailersRecycleView != null) {
-                    trailersRecycleView.smoothScrollToPosition(mTrailerPosition);
-                }
-            }
-        } else if (ID_MOVIE == loader.getId()) {
-            if (data.getCount() < 1) {
-                new AsyncTask<Void, Void, Void>() {
-                    @Override
-                    protected Void doInBackground(Void... params) {
-                        MovieUtils.startSyncWithWeb(getContext(), ACTION_LOOKUP_MOVIE, Integer.parseInt(movieId));
-                        return null;
-                    }
-                    
-                }.execute();
-            } else if (data.getCount() > 0) {
-                data.moveToFirst();
-                int durationColumnIndex = data.getColumnIndex(MovieContract.Movie.COLUMN_DURATION);
-                final String durationValue = data.getString(durationColumnIndex);
-                duration.setText(durationValue + " min");
-                
-            }
-        } else if (ID_MOVIE_REVIEWS == loader.getId()) {
-            if (data.getCount() < 1) {
-                new AsyncTask<Void, Void, Void>() {
-                    @Override
-                    protected Void doInBackground(Void... params) {
-                        MovieUtils.startSyncWithWeb(getContext(), ACTION_LOOKUP_REVIEWS, Integer.parseInt(movieId));
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                showReviewDisplayMessage();
-                            }
-                        });
-
-                        
-                        return null;
-                    }
-                }.execute();
-            } else if (data.getCount() > 0)
-                showReviews();
-            reviewAdapter.setmId(Integer.parseInt(movieId));
-            reviewAdapter.swapCursor(data);
-            if (mReviewPosition == RecyclerView.NO_POSITION) mReviewPosition = 0;
-            
-            if (reviewRecycleView != null)
-                reviewRecycleView.smoothScrollToPosition(mReviewPosition);
-            
-            
-        }
-        
-        
     }
     
     private void showTrailerMessage() {
@@ -392,6 +325,8 @@ public class MovieDetails extends Fragment implements LoaderManager.LoaderCallba
         noTrailer.setVisibility(View.INVISIBLE);
     }
     
+    //put in adapter to play movie.
+    //base?
     
     private void showReviewDisplayMessage() {
         reviewRecycleView.setVisibility(View.GONE);
@@ -402,10 +337,21 @@ public class MovieDetails extends Fragment implements LoaderManager.LoaderCallba
         reviewRecycleView.setVisibility(View.VISIBLE);
         noReview.setVisibility(View.INVISIBLE);
     }
+  
     
     @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-        trailerAdapter.swapCursor(null);
-        reviewAdapter.swapCursor(null);
+    public boolean onBackClick() {
+        if (mListener != null) {
+            mListener.onFragmentInteraction(null);
+        }
+        return true;
+    }
+    
+    
+    
+    public interface OnFragmentInteractionListener {
+        // TODO: Update argument type and name
+        void onFragmentInteraction(Bundle bundle);
+        
     }
 }

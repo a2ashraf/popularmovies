@@ -12,6 +12,7 @@ import android.widget.ImageView;
 import com.example.ahsan.popularmovies.R;
 import com.example.ahsan.popularmovies.Utilities.MoviePreferences;
 import com.example.ahsan.popularmovies.data.MovieContract;
+import com.example.ahsan.popularmovies.data.MovieDBHelper;
 import com.example.ahsan.popularmovies.enums.MovieResponse;
 import com.example.ahsan.popularmovies.fragments.MovieListing;
 import com.squareup.picasso.Picasso;
@@ -94,11 +95,13 @@ public class RAdapter extends RecyclerView.Adapter<RAdapter.ViewHolder> {
             String posterpath = currentCursor.getString(currentCursor.getColumnIndex(MovieContract.MovieBase.COLUMN_POSTERPATH));
             String overview = currentCursor.getString(currentCursor.getColumnIndex(MovieContract.MovieBase.COLUMN_OVERVIEW));
             String originaltitle = currentCursor.getString(currentCursor.getColumnIndex(MovieContract.MovieBase.COLUMN_ORIGINALTITLE));
-            String favorite = currentCursor.getString(currentCursor.getColumnIndex(MovieContract.MovieBase.COLUMN_FAVORITES));
+            int favorite = currentCursor.getInt(currentCursor.getColumnIndex(MovieContract.MovieBase.COLUMN_FAVORITES));
+            int movieType= currentCursor.getInt(currentCursor.getColumnIndex(MovieDBHelper.COLUMN_TABLE_NAME));
+            
 //            String durationTime = currentCursor.getString(currentCursor.getColumnIndex(MovieContract.Movie.COLUMN_DURATION));
             
             Bundle b = new Bundle();
-            
+            b.putInt(MovieDBHelper.COLUMN_TABLE_NAME, movieType);
             b.putString(MovieResponse.MOVIEID.name(), movieId);
             
             b.putString(MovieResponse.RATING.name(), rating);
@@ -111,12 +114,7 @@ public class RAdapter extends RecyclerView.Adapter<RAdapter.ViewHolder> {
             
             b.putString(MovieResponse.TITLE.name(), originaltitle);
             b.putString(MovieResponse.DURATION.name(), originaltitle);
-            
-            if(MoviePreferences.isInFavorites(ctx,movieId))
-                b.putBoolean(MovieResponse.FAVORITE.name(), true);
-            else
-                b.putBoolean(MovieResponse.FAVORITE.name(), false);
-            
+            b.putInt(MovieResponse.FAVORITE.name(),favorite);
             callingFragment.onButtonPressed(b);
             
         }

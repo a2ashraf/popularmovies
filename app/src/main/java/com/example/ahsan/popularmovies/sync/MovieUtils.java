@@ -38,33 +38,24 @@ public class MovieUtils {
     * */
         new AsyncTask<Integer, Void, Void>() {
     
-    
-            
-    
             @Override
             protected Void doInBackground(Integer... params) {
                 Uri moviesUri = null;
-//                String[] columnsProjection= {MovieContract.Movie.COLUMN_MOVIEID};
-                String[] columnsProjection= null;
-    
-                //check db connection, if none, go and start the sync.
-//                int count = params.length;
-//                for(int x=0; x<count;x++){
-//                    int ACTION  = params[x];
-//                }
+                 String[] columnsProjection= null;
+ 
                 String selection = null;
                 String qualification[] = null;
                 switch(action){
-                    case(ACTION_LOOKUP_REVIEWS):
-                       moviesUri = MovieContract.MovieReview.CONTENT_URI;
-                          selection = MovieContract.MovieBase.COLUMN_MOVIEID+ " = ? ";
-                          qualification= new String[] {String.valueOf(movieid)};
-                             break;
-                    case (ACTION_LOOKUP_TRAILERS):
-                        moviesUri = MovieContract.MovieTrailers.CONTENT_URI;
-                        selection = MovieContract.MovieBase.COLUMN_MOVIEID + " = ? ";
-                          qualification= new String[] {String.valueOf(movieid)};
-                         break;
+//                    case(ACTION_LOOKUP_REVIEWS):
+//                       moviesUri = MovieContract.MovieReview.CONTENT_URI;
+//                          selection = MovieContract.MovieBase.COLUMN_MOVIEID+ " = ? ";
+//                          qualification= new String[] {String.valueOf(movieid)};
+//                             break;
+//                    case (ACTION_LOOKUP_TRAILERS):
+//                        moviesUri = MovieContract.MovieTrailers.CONTENT_URI;
+//                        selection = MovieContract.MovieBase.COLUMN_MOVIEID + " = ? ";
+//                          qualification= new String[] {String.valueOf(movieid)};
+//                         break;
                     case (ACTION_LOOKUP_MOVIES):
                          moviesUri = MovieContract.MovieTopRated.CONTENT_URI;
                          break;
@@ -82,8 +73,6 @@ public class MovieUtils {
                 Cursor cursor = context.getContentResolver().query(moviesUri,columnsProjection,selection,qualification,null);
                 if (cursor == null || cursor.getCount() == 0  ) {
                     startSyncWithWeb(context, action, movieid);
-                }else{
-                    
                 }
                 
                 cursor.close();

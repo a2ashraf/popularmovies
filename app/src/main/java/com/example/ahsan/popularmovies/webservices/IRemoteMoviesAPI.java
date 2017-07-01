@@ -1,10 +1,10 @@
 package com.example.ahsan.popularmovies.webservices;
 
-import com.example.ahsan.popularmovies.model.AMovie;
 import com.example.ahsan.popularmovies.model.Configuration;
 import com.example.ahsan.popularmovies.model.Movies;
 import com.example.ahsan.popularmovies.model.Reviews;
 import com.example.ahsan.popularmovies.model.Trailers;
+import com.example.ahsan.popularmovies.model.details.MovieDetails;
 
 import java.util.Map;
 
@@ -33,7 +33,7 @@ public interface IRemoteMoviesAPI {
     
     
     @GET("movie/{movie_id}")
-    Call<AMovie> getMovie(@Path("movie_id") String movie_id, @QueryMap Map<String, String> options);
+    Call<MovieDetails> getMovie(@Path("movie_id") String movie_id, @QueryMap Map<String, String> options);
     
     
     @GET("movie/{movie_id}/reviews")

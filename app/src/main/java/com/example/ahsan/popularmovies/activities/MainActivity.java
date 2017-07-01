@@ -28,7 +28,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MainActivity extends AppCompatActivity implements MovieListing.OnFragmentInteractionListener, BackButtonHandlerInterface {
+public class MainActivity extends AppCompatActivity implements MovieListing.OnFragmentInteractionListener, MovieDetails.OnFragmentInteractionListener, BackButtonHandlerInterface {
     
     private ArrayList<WeakReference<OnBackClickListener>> backClickListenersList = new ArrayList<>();
     
@@ -143,10 +143,18 @@ public class MainActivity extends AppCompatActivity implements MovieListing.OnFr
         if (movieDetails != null) {
             fm = getSupportFragmentManager();
             fragmentTransaction = fm.beginTransaction();
-            fragmentTransaction.replace(R.id.fragment_container, movieDetails);
-            fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-            fragmentTransaction.addToBackStack(null);
-            fragmentTransaction.commit();
+            if(bundle!=null){
+                fragmentTransaction.replace(R.id.fragment_container, movieDetails);
+                fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+                 fragmentTransaction.commit();
+            }else{
+                movieListingRated = MovieListing.newInstance(MovieListing.MOVIE_TYPE_TOP_RATED);
+                fragmentTransaction.replace(R.id.fragment_container, movieListingRated);
+                fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+                fragmentTransaction.commit();
+            }
+                
+            
         } else
             Toast.makeText(this, "Something went wrong with network call, no bundle found", Toast.LENGTH_SHORT);
         

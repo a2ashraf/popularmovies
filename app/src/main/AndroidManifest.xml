@@ -11,20 +11,14 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activities.MainActivity"
-                  android:configChanges="orientation|keyboardHidden|keyboard">
+        <activity android:name=".activities.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".activities.DetailsActivity"
-            android:label="@string/title_activity_details"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
-
-    <provider android:authorities="com.example.ahsan.popularmovies" android:name=".data.MovieProvider" android:exported="false"/>
+        <provider android:authorities="com.example.ahsan.popularmovies" android:name=".data.MovieProvider" android:exported="false"/>
     <service android:name=".sync.MovieIntentService"
     android:exported="false"/>
     </application>

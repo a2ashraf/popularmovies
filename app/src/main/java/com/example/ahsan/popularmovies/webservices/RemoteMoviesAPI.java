@@ -1,10 +1,10 @@
 package com.example.ahsan.popularmovies.webservices;
 
-import com.example.ahsan.popularmovies.model.AMovie;
 import com.example.ahsan.popularmovies.model.Configuration;
 import com.example.ahsan.popularmovies.model.Movies;
 import com.example.ahsan.popularmovies.model.Reviews;
 import com.example.ahsan.popularmovies.model.Trailers;
+import com.example.ahsan.popularmovies.model.details.MovieDetails;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -75,8 +75,10 @@ public class RemoteMoviesAPI implements IRemoteMoviesAPI {
     }
     
     @Override
-    public Call<AMovie> getMovie(@Path("movie_id") String movie_id, @QueryMap Map<String, String> options) {
-        options = queryParams;
+    public Call<MovieDetails> getMovie(@Path("movie_id") String movie_id, @QueryMap Map<String, String> options) {
+        
+        options.putAll(queryParams);
+        
         return mRemoteAPI.getMovie(movie_id,options);
     }
     

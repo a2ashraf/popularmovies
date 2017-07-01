@@ -11,7 +11,9 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class MovieDBHelper extends SQLiteOpenHelper {
    
    private static String DB_NAME = "movies.db";
-   private static int VERSION= 8;
+   public static String COLUMN_TABLE_NAME= "tablename";
+    
+   private static int VERSION= 2;
     
    
     public MovieDBHelper(Context context) {
@@ -35,8 +37,10 @@ public class MovieDBHelper extends SQLiteOpenHelper {
         
                         MovieContract.MoviePopular.COLUMN_RELEASEDATE   + " REAL NOT NULL, "                    +
                         MovieContract.MoviePopular.COLUMN_VOTEAVERAGE   + " REAL NOT NULL, "                    +
-                        MovieContract.MoviePopular.COLUMN_FAVORITES   + " REAL, "                    +
-                        
+                        MovieContract.MoviePopular.COLUMN_FAVORITES   + " INTEGER DEFAULT 0, "                    +
+                        COLUMN_TABLE_NAME   + " INTEGER DEFAULT 0,"                    +
+        
+        
                         " UNIQUE (" +  MovieContract.MoviePopular.COLUMN_MOVIEID  + ") ON CONFLICT REPLACE);";
     
         final String SQL_CREATE_MOVIE_TOP_RATED_TABLE =
@@ -53,8 +57,9 @@ public class MovieDBHelper extends SQLiteOpenHelper {
                     
                         MovieContract.MovieTopRated.COLUMN_RELEASEDATE   + " REAL NOT NULL, "                    +
                         MovieContract.MovieTopRated.COLUMN_VOTEAVERAGE   + " REAL NOT NULL, "                    +
-                        MovieContract.MovieTopRated.COLUMN_FAVORITES   + " REAL, "                    +
-                        
+                        MovieContract.MovieTopRated.COLUMN_FAVORITES   +  " INTEGER DEFAULT 0, "                    +
+                        COLUMN_TABLE_NAME   + " INTEGER DEFAULT 1,"                    +
+        
                         " UNIQUE (" +  MovieContract.MovieTopRated.COLUMN_MOVIEID  + ") ON CONFLICT REPLACE);";
     
         final String SQL_CREATE_MOVIE_REVIEWS_TABLE =
@@ -94,11 +99,17 @@ public class MovieDBHelper extends SQLiteOpenHelper {
     
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
-        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + MovieContract.MoviePopular.TABLE_NAME);
-        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + MovieContract.MovieTopRated.TABLE_NAME);
-        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + MovieContract.MovieTrailers.TABLE_NAME);
-        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + MovieContract.MovieReview.TABLE_NAME);
-        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + MovieContract.Movie.TABLE_NAME);
+       // if(oldVersion < VERSION){
+            sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + MovieContract.MoviePopular.TABLE_NAME);
+            sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + MovieContract.MovieTopRated.TABLE_NAME);
+            sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + MovieContract.MovieTrailers.TABLE_NAME);
+            sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + MovieContract.MovieReview.TABLE_NAME);
+            sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + MovieContract.Movie.TABLE_NAME);
+//        }else{
+//
+//        }
+//
+        
         onCreate(sqLiteDatabase);
     }
 }
