@@ -23,7 +23,7 @@ public abstract class BaseFragment extends Fragment {
         
         if (NetworkUtil.isOnline(getActivity().getApplicationContext())) {
             
-            makeRequest(true);
+//            makeRequest(true);
         } else
             Toast.makeText(getActivity(), "Please verify your internet connection, and try again", Toast.LENGTH_SHORT).show();
         

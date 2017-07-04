@@ -57,15 +57,15 @@ public class MovieUtils {
 //                          qualification= new String[] {String.valueOf(movieid)};
 //                         break;
                     case (ACTION_LOOKUP_MOVIES):
-                         moviesUri = MovieContract.MovieTopRated.CONTENT_URI;
+                         moviesUri = MovieContract.MovieBase.CONTENT_URI;
                          break;
-                    case (ACTION_LOOKUP_MOVIE):
-                        moviesUri = MovieContract.Movie.CONTENT_URI;
-                        selection = MovieContract.MovieBase.COLUMN_MOVIEID + " = ? ";
-                        qualification= new String[] {String.valueOf(movieid)};
-                   
-    
-                        break;
+//                    case (ACTION_LOOKUP_MOVIE):
+//                        moviesUri = MovieContract.Movie.CONTENT_URI;
+//                        selection = MovieContract.MovieBase.COLUMN_MOVIEID + " = ? ";
+//                        qualification= new String[] {String.valueOf(movieid)};
+//
+//
+//                        break;
                     default:
                         throw new UnsupportedOperationException("Unrecognized URI:" + action);
                 }

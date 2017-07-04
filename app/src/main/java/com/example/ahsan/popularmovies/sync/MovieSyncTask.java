@@ -7,15 +7,10 @@ import android.content.Context;
 import com.example.ahsan.popularmovies.data.MovieContract;
 import com.example.ahsan.popularmovies.model.MovieResult;
 import com.example.ahsan.popularmovies.model.Movies;
-import com.example.ahsan.popularmovies.model.ReviewResult;
-import com.example.ahsan.popularmovies.model.Reviews;
-import com.example.ahsan.popularmovies.model.TrailerResult;
-import com.example.ahsan.popularmovies.model.Trailers;
 import com.example.ahsan.popularmovies.model.details.MovieDetails;
 import com.example.ahsan.popularmovies.webservices.RemoteMoviesAPI;
 import com.orhanobut.logger.Logger;
 
-import java.util.HashMap;
 import java.util.List;
 
 import retrofit2.Call;
@@ -28,6 +23,9 @@ import retrofit2.Response;
 
 public class MovieSyncTask {
     //TODO: FIX this so that you send in from intent service the id.
+    public static final int TOP_RATED = 11;
+    public static final int POPULAR = 12;
+    public static final int FAVORITES = 13;
     
     synchronized public static void syncMovies(final Context context,  int action, int movieid) {
         //make the network calls!, sync the response with the database insert queries.
@@ -36,13 +34,16 @@ public class MovieSyncTask {
         switch (action) {
             case (MovieUtils.ACTION_LOOKUP_MOVIES):
                 RemoteMoviesAPI.getInstance().getTopRated(null).enqueue(new Callback<Movies>() {
+                    
+                    
+    
                     @Override
                     public void onResponse(Call<Movies> call, Response<Movies> response) {
                         Logger.d(" ");
-                        ContentValues[] freshListOfMovies = getContentValuesFromMovieLookup(response);
+                        ContentValues[] freshListOfMovies = getContentValuesFromMovieLookup(response,TOP_RATED);
                          
                         if (freshListOfMovies.length != 0 && freshListOfMovies != null) {
-                             contentResolver.bulkInsert(MovieContract.MovieTopRated.CONTENT_URI, freshListOfMovies);
+                             contentResolver.bulkInsert(MovieContract.MovieBase.CONTENT_URI, freshListOfMovies);
                         }
                     }
                     
@@ -58,9 +59,9 @@ public class MovieSyncTask {
                     @Override
                     public void onResponse(Call<Movies> call, Response<Movies> response) {
                         Logger.d(response.body().toString());
-                        ContentValues[] freshListOfMovies = getContentValuesFromMovieLookup(response);
+                        ContentValues[] freshListOfMovies = getContentValuesFromMovieLookup(response, POPULAR);
                         if (freshListOfMovies.length != 0 && freshListOfMovies != null) {
-                             contentResolver.bulkInsert(MovieContract.MoviePopular.CONTENT_URI, freshListOfMovies);
+                             contentResolver.bulkInsert(MovieContract.MovieBase.CONTENT_URI, freshListOfMovies);
                         }
                     }
                     
@@ -71,72 +72,13 @@ public class MovieSyncTask {
                     }
                 });
                 break;
-//            case (MovieUtils.ACTION_LOOKUP_REVIEWS):
-//
-//                RemoteMoviesAPI.getInstance().getReviews(String.valueOf(movieid), null).enqueue(new Callback<Reviews>() {
-//                    @Override
-//                    public void onResponse(Call<Reviews> call, Response<Reviews> response) {
-//                        Logger.d(response.body().toString());
-//                        ContentValues[] freshListOfMovies = getContentValuesFromMovieReviewLookup(response);
-//                        if (freshListOfMovies.length != 0 && freshListOfMovies != null) {
-//                             contentResolver.bulkInsert(MovieContract.MovieReview.CONTENT_URI, freshListOfMovies);
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void onFailure(Call<Reviews> call, Throwable t) {
-//                        Logger.d(t.getMessage());
-//                        new Throwable(t);
-//                    }
-//                });
-//
-//
-//                break;
-            case (MovieUtils.ACTION_LOOKUP_MOVIE):
-                HashMap<String, String> map = new HashMap<>();
-                map.put("append_to_response","reviews,videos");
-                RemoteMoviesAPI.getInstance().getMovie(String.valueOf(movieid), map).enqueue(new Callback<MovieDetails>() {
-                    @Override
-                    public void onResponse(Call<MovieDetails> call, Response<MovieDetails> response) {
-                    
-                      if(response!=null && response.body()!=null){
-                                                   
-                          //ContentValues movie  = getContentValuesFromAMovieLookup(response);
-//                          contentResolver.insert(MovieContract.Movie.CONTENT_URI, movie);
-                      }
-                    }
-    
-                    @Override
-                    public void onFailure(Call<MovieDetails> call, Throwable t) {
-                        Logger.d(t.getMessage());
-                        new Throwable(t);
-                    }
-    
-                });
-                break;
-//            case (MovieUtils.ACTION_LOOKUP_TRAILERS):
-//                RemoteMoviesAPI.getInstance().getVideos(String.valueOf(movieid), null).enqueue(new Callback<Trailers>() {
-//                    @Override
-//                    public void onResponse(Call<Trailers> call, Response<Trailers> response) {
-//                         ContentValues[] freshListOfMovies = getContentValuesFromTrailerLookup(response);
-//                        if (freshListOfMovies.length != 0 && freshListOfMovies != null) {
-//                             contentResolver.bulkInsert(MovieContract.MovieTrailers.CONTENT_URI, freshListOfMovies);
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void onFailure(Call<Trailers> call, Throwable t) {
-//                        Logger.d(t.getMessage());
-//                        new Throwable(t);
-//                    }
-//                });
-//                break;
+
             default:
                 throw new UnsupportedOperationException("Uknown action: " + action);
         }
     }
     
-    private static ContentValues[] getContentValuesFromMovieLookup(Response<Movies> response) {
+    private static ContentValues[] getContentValuesFromMovieLookup(Response<Movies> response, int sourceData) {
         List<MovieResult> movieResultList = response.body().movieResults;
         
         ContentValues[] listOfMovies = new ContentValues[movieResultList.size()];
@@ -149,39 +91,11 @@ public class MovieSyncTask {
             movie.put(MovieContract.MovieBase.COLUMN_POSTERPATH, movieResultList.get(index).posterPath);
             movie.put(MovieContract.MovieBase.COLUMN_RELEASEDATE, movieResultList.get(index).releaseDate);
             movie.put(MovieContract.MovieBase.COLUMN_VOTEAVERAGE, movieResultList.get(index).voteAverage);
+            movie.put(MovieContract.MovieBase.COLUMN_TABLE_NAME,sourceData);
             listOfMovies[index] = movie;
          }
          
         return listOfMovies;
-    }
-    
-    private static ContentValues[] getContentValuesFromTrailerLookup(Response<Trailers> response) {
-        
-        List<TrailerResult> trailerResultList = response.body().results;
-        ContentValues[] listOfTrailers = new ContentValues[trailerResultList.size()];
-        ContentValues movieTrailers;
-        for (int index = 0; index < trailerResultList.size(); index++) {
-            movieTrailers = new ContentValues();
-            movieTrailers.put(MovieContract.MovieTrailers.COLUMN_MOVIEID, response.body().id);
-            movieTrailers.put(MovieContract.MovieTrailers.COLUMN_TRAILER_KEY, trailerResultList.get(index).key);
-            listOfTrailers[index] = movieTrailers;
-        }
-        return listOfTrailers;
-    }
-    
-    
-    private static ContentValues[] getContentValuesFromMovieReviewLookup(Response<Reviews> response) {
-        List<ReviewResult> reviewResultList = response.body().results;
-        ContentValues[] listOfReviews = new ContentValues[reviewResultList.size()];
-        ContentValues movieReviews;
-        for (int index = 0; index < reviewResultList.size(); index++) {
-            movieReviews = new ContentValues();
-            movieReviews.put(MovieContract.MovieReview.COLUMN_MOVIEID, response.body().id);
-            movieReviews.put(MovieContract.MovieReview.COLUMN_REVIEW_AUTHOR, reviewResultList.get(index).author);
-            movieReviews.put(MovieContract.MovieReview.COLUMN_REVIEW_CONTENT, reviewResultList.get(index).content);
-            listOfReviews[index] = movieReviews;
-        }
-        return listOfReviews;
     }
     
     

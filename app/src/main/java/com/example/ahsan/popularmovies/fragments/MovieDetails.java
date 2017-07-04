@@ -23,7 +23,6 @@ import com.example.ahsan.popularmovies.Utilities.OnBackClickListener;
 import com.example.ahsan.popularmovies.adapters.ReviewAdapter;
 import com.example.ahsan.popularmovies.adapters.TrailerAdapter;
 import com.example.ahsan.popularmovies.data.MovieContract;
-import com.example.ahsan.popularmovies.data.MovieDBHelper;
 import com.example.ahsan.popularmovies.enums.MovieResponse;
 import com.example.ahsan.popularmovies.model.details.Reviews;
 import com.example.ahsan.popularmovies.model.details.Videos;
@@ -44,7 +43,7 @@ import retrofit2.Response;
 import static com.example.ahsan.popularmovies.Utilities.MoviePreferences.DEFAULT_BACKDROP_SIZE;
 import static com.example.ahsan.popularmovies.enums.MovieResponse.POSTERPATH;
 
-public class MovieDetails extends Fragment implements  OnBackClickListener {
+public class MovieDetails extends Fragment implements OnBackClickListener {
     private static final int ID_MOVIE_REVIEWS = 6000;
     private static final int ID_MOVIE_TRAILERS = 5000;
     private static final int ID_MOVIE = 7000;
@@ -63,35 +62,26 @@ public class MovieDetails extends Fragment implements  OnBackClickListener {
     private boolean isFavorite = false;
     private String movieId;
     private TrailerAdapter trailerAdapter;
-    private int mReviewPosition = RecyclerView.NO_POSITION;
-    private TextView noReview;
+     private TextView noReview;
     private TextView noTrailer;
     private TextView duration;
     
     private BackButtonHandlerInterface backButtonHandler;
     private ReviewAdapter reviewAdapter;
-    private int mTrailerPosition = RecyclerView.NO_POSITION;
-    private OnFragmentInteractionListener mListener;
+     private OnFragmentInteractionListener mListener;
     private int movieType;
-    
+     
     
     // TODO: Rename and change types and number of parameters
     public static MovieDetails newInstance(Bundle bundle) {
         Bundle args = new Bundle();
-        MovieDetails fragment;
-        if (sInstance != null) {
-            fragment = sInstance;
-        } else {
-            fragment = new MovieDetails();
-        }
-        
-        if (bundle != null) {
+         if (sInstance == null) {
+            sInstance = new MovieDetails();
             args.putAll(bundle);
-            fragment.setArguments(args);
+            sInstance.setArguments(args);
         }
-        return fragment;
+          return sInstance;
     }
-    
     
     @Override
     public void onAttach(Context context) {
@@ -105,11 +95,15 @@ public class MovieDetails extends Fragment implements  OnBackClickListener {
                     + " must implement OnFragmentInteractionListener");
         }
     }
+
+ 
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Bundle extras;
+        
+        
         if (savedInstanceState != null) {
             extras = savedInstanceState;
         } else {
@@ -117,16 +111,16 @@ public class MovieDetails extends Fragment implements  OnBackClickListener {
         }
         if (extras != null) {
             
-            movieType = extras.getInt(MovieDBHelper.COLUMN_TABLE_NAME);
+            movieType = extras.getInt(MovieContract.MovieBase.COLUMN_TABLE_NAME);
             title = extras.getString(MovieResponse.TITLE.name());
             overview = extras.getString(MovieResponse.OVERVIEW.name());
             rating = extras.getString(MovieResponse.RATING.name());
             thumbnail = extras.getString(POSTERPATH.name());
             release = extras.getString(MovieResponse.RELEASE_DATE.name());
-            isFavorite = extras.getInt(MovieResponse.FAVORITE.name())==1;
+            isFavorite = extras.getInt(MovieResponse.FAVORITE.name()) == 1;
             movieId = extras.getString(MovieResponse.MOVIEID.name());
             String releaseYear = getReleaseYear(release);
-            release = releaseYear;
+             release = releaseYear;
         }
         trailerAdapter = new TrailerAdapter(getContext(), Integer.parseInt(movieId));
         reviewAdapter = new ReviewAdapter(getContext(), Integer.parseInt(movieId));
@@ -155,7 +149,7 @@ public class MovieDetails extends Fragment implements  OnBackClickListener {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         Logger.d("OncreateView - MovieDetails");
-        
+    
         
         setHasOptionsMenu(false);
         View detailsView = inflater.inflate(R.layout.fragment_movie_details, container, false);
@@ -170,6 +164,7 @@ public class MovieDetails extends Fragment implements  OnBackClickListener {
         noReview = (TextView) detailsView.findViewById(R.id.textView_no_review);
         noTrailer = (TextView) detailsView.findViewById(R.id.textView_no_trailer);
         duration = (TextView) detailsView.findViewById(R.id.textView_duration);
+        
         trailersRecycleView = (RecyclerView) detailsView.findViewById(R.id.movie_trailers);
         trailersRecycleView.setHasFixedSize(true);
         trailersRecycleView.setLayoutManager(trailerlayoutManager);
@@ -181,29 +176,30 @@ public class MovieDetails extends Fragment implements  OnBackClickListener {
         } else {
             favorites.setBackground(getResources().getDrawable(R.drawable.ic_favorite_border_white_24dp));
         }
-    
-    
-    
+        
+        
         favorites.setOnClickListener(new View.OnClickListener() {
-            int counter=0;
+            int counter = 0;
+            
             @Override
             public void onClick(View v) {
                 isFavorite = !isFavorite;
                 ContentValues values = new ContentValues();
                 Logger.d("PRINTOUT ON CLICK!!-> COUNTER: " + counter++);
-                values.put(MovieContract.MovieBase.COLUMN_FAVORITES, isFavorite == true ? 1:0);
-                values.put("MOVIE_TYPE",movieType);
-                 getActivity().getContentResolver().update(MovieContract.FAVORITES_URI, values, "movieid = ?", new String[]{movieId});
-//                getContext().getContentResolver().notifyChange(MovieContract.FAVORITES_URI, null);
-    
-                if(isFavorite){
+                values.put(MovieContract.MovieBase.COLUMN_FAVORITES, isFavorite == true ? 1 : 0);
+                values.put("MOVIE_TYPE", movieType);
+                getActivity().getContentResolver().update(MovieContract.FAVORITES_URI, values, "movieid = ?", new String[]{movieId});
+
+
+                
+                if (isFavorite) {
                     favorites.setBackground(getResources().getDrawable(R.drawable.ic_favorite_white_24dp));
                     Toast.makeText(getContext(), "Saved!", Toast.LENGTH_SHORT).show();
-                }else{
+                } else {
                     favorites.setBackground(getResources().getDrawable(R.drawable.ic_favorite_border_white_24dp));
                     Toast.makeText(getContext(), "Unsaved", Toast.LENGTH_SHORT).show();
                 }
-             }
+            }
             
         });
         TextView title_view = (TextView) detailsView.findViewById(R.id.title_of_movie);
@@ -216,6 +212,8 @@ public class MovieDetails extends Fragment implements  OnBackClickListener {
         
         TextView release_view = (TextView) detailsView.findViewById(R.id.release_date);
         release_view.setText(release.toString());
+    
+         
         
         final ImageView background_view = (ImageView) detailsView.findViewById(R.id.background_image);
         final String finalThumbnail = MoviePreferences.getBaseUrl(getContext()) + DEFAULT_BACKDROP_SIZE + thumbnail;
@@ -236,8 +234,12 @@ public class MovieDetails extends Fragment implements  OnBackClickListener {
         
         TextView mvid = (TextView) detailsView.findViewById(R.id.id_movie);
         mvid.setText(movieId);
+ 
+        
         return detailsView;
     }
+    
+ 
     
     @Override
     public void onResume() {
@@ -252,13 +254,12 @@ public class MovieDetails extends Fragment implements  OnBackClickListener {
                 if (response != null && response.body() != null) {
                     Videos trailerVideos = response.body().getVideos();
                     Reviews movieReviews = response.body().getReviews();
-                    if (trailerVideos.getResults().size() > 0){
+                    if (trailerVideos.getResults().size() > 0) {
                         showTrailers();
                         trailerAdapter.setData(trailerVideos);
                         trailersRecycleView.setAdapter(trailerAdapter);
-                    }
-                    else{
-    
+                    } else {
+                        
                         showTrailerMessage();
                     }
                     
@@ -266,13 +267,12 @@ public class MovieDetails extends Fragment implements  OnBackClickListener {
                         showReviews();
                         reviewAdapter.setData(movieReviews);
                         reviewRecycleView.setAdapter(reviewAdapter);
-                    }
-                    else {
+                    } else {
                         showReviewDisplayMessage();
-    
+                        
                     }
-    
- 
+                    durationTime = String.valueOf(response.body().getRuntime());
+                    duration.setText(durationTime + " min");
                 }
             }
             
@@ -284,7 +284,7 @@ public class MovieDetails extends Fragment implements  OnBackClickListener {
             }
             
         });
- 
+        
     }
     
     @Override
@@ -297,14 +297,11 @@ public class MovieDetails extends Fragment implements  OnBackClickListener {
             outState.putString(MovieResponse.RATING.name(), rating);
             outState.putString(MovieResponse.THUMBNAIL.name(), thumbnail);
             outState.putString(MovieResponse.RELEASE_DATE.name(), release);
-            outState.putInt(MovieResponse.FAVORITE.name(), isFavorite == true ? 1:0);
+            outState.putInt(MovieResponse.FAVORITE.name(), isFavorite == true ? 1 : 0);
             outState.putString(MovieResponse.MOVIEID.name(), movieId);
             outState.putString(MovieResponse.DURATION.name(), durationTime);
-            outState.putInt(MovieDBHelper.COLUMN_TABLE_NAME, movieType);
-            
+            outState.putInt(MovieContract.MovieBase.COLUMN_TABLE_NAME, movieType);
         }
-        
-        
     }
     
     @Override
@@ -325,8 +322,6 @@ public class MovieDetails extends Fragment implements  OnBackClickListener {
         noTrailer.setVisibility(View.INVISIBLE);
     }
     
-    //put in adapter to play movie.
-    //base?
     
     private void showReviewDisplayMessage() {
         reviewRecycleView.setVisibility(View.GONE);
@@ -337,7 +332,7 @@ public class MovieDetails extends Fragment implements  OnBackClickListener {
         reviewRecycleView.setVisibility(View.VISIBLE);
         noReview.setVisibility(View.INVISIBLE);
     }
-  
+    
     
     @Override
     public boolean onBackClick() {
@@ -346,7 +341,6 @@ public class MovieDetails extends Fragment implements  OnBackClickListener {
         }
         return true;
     }
-    
     
     
     public interface OnFragmentInteractionListener {

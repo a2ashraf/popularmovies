@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements MovieListing.OnFr
         
         if (findViewById(R.id.fragment_container) != null) {
             
-            movieListingRated = MovieListing.newInstance(MovieListing.MOVIE_TYPE_TOP_RATED);
+            movieListingRated = MovieListing.newInstance();
 //           MovieListing movieListingPopular = MovieListing.newInstance(MovieListing.MOVIE_TYPE_POPULAR);
             fm = getSupportFragmentManager();
             fragmentTransaction = fm.beginTransaction();
@@ -148,7 +148,7 @@ public class MainActivity extends AppCompatActivity implements MovieListing.OnFr
                 fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
                  fragmentTransaction.commit();
             }else{
-                movieListingRated = MovieListing.newInstance(MovieListing.MOVIE_TYPE_TOP_RATED);
+                movieListingRated = MovieListing.newInstance();
                 fragmentTransaction.replace(R.id.fragment_container, movieListingRated);
                 fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
                 fragmentTransaction.commit();

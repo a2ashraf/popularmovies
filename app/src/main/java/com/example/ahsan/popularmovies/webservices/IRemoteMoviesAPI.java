@@ -23,18 +23,15 @@ public interface IRemoteMoviesAPI {
     
     
  
-    //@Headers(CONTENTN_JSON)
-    @GET("movie/top_rated")
+     @GET("movie/top_rated")
     Call<Movies> getTopRated(@QueryMap Map<String, String> options);
     
-//    @Headers(CONTENTN_JSON)
-    @GET("movie/popular")
+     @GET("movie/popular")
     Call<Movies> getPopular(@QueryMap Map<String, String> options);
     
     
     @GET("movie/{movie_id}")
     Call<MovieDetails> getMovie(@Path("movie_id") String movie_id, @QueryMap Map<String, String> options);
-    
     
     @GET("movie/{movie_id}/reviews")
     Call<Reviews> getReviews(@Path("movie_id") String movie_id, @QueryMap Map<String, String> options);
@@ -45,10 +42,5 @@ public interface IRemoteMoviesAPI {
     @GET("configuration")
     Call<Configuration> getConfiguration(@QueryMap Map<String, String> options);
 
-//    @Headers(CONTENTN_JSON)
-//    @GET("/movie/top_rated")
-//    Call<ResponseBody> top_rated(@Header(AUTHORIZATION) String authToken);
-//
-//
-    
+ 
 }
