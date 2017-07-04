@@ -233,7 +233,6 @@ public class MovieListing extends BaseFragment implements LoaderManager.LoaderCa
         }
         
         return null;
-        
     }
     
     @Override
@@ -247,7 +246,6 @@ public class MovieListing extends BaseFragment implements LoaderManager.LoaderCa
         } catch (Exception e) {
             e.printStackTrace();
         }
- 
         
         recyclerView.smoothScrollToPosition(adapterPosition);
     }
